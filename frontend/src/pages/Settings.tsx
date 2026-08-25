@@ -63,8 +63,8 @@ const SettingsPage: React.FC = () => {
               </button>
             </div>
 
-            <div className="card overflow-hidden">
-              <table className="w-full">
+            <div className="card overflow-hidden hidden md:block">
+              <table className="w-full min-w-[640px]">
                 <thead className="bg-cream-soft border-b border-line">
                   <tr>
                     <Th>User</Th>
@@ -100,6 +100,35 @@ const SettingsPage: React.FC = () => {
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            {/* Cards (mobile) */}
+            <div className="md:hidden space-y-3">
+              {mockUsers.map((u) => (
+                <div key={u.id} className="card p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <Avatar name={u.username} tone={roleTones[u.role] || 'lime'} size="sm" />
+                      <div className="min-w-0">
+                        <p className="font-extrabold text-ink tracking-tight truncate capitalize">{u.username}</p>
+                        <p className="text-xs text-stone-400 truncate">{u.email}</p>
+                      </div>
+                    </div>
+                    <Chip tone={roleTones[u.role] || 'neutral'}>{u.role}</Chip>
+                  </div>
+                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-line">
+                    <div className="flex items-center gap-1.5">
+                      <Chip tone="mint">Active</Chip>
+                      <Chip tone="neutral">{u.branch}</Chip>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button className="p-2 text-stone-400 hover:text-ink hover:bg-lime-soft rounded-full"><Key className="w-4 h-4" /></button>
+                      <button className="p-2 text-stone-400 hover:text-ink hover:bg-cream-deep rounded-full"><Edit className="w-4 h-4" /></button>
+                      <button className="p-2 text-stone-400 hover:text-[#a34141] hover:bg-blush-soft rounded-full"><Trash2 className="w-4 h-4" /></button>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}

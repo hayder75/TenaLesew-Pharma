@@ -137,7 +137,7 @@ const CashierDashboard: React.FC = () => {
                     key={day}
                     onClick={() => dayData.count > 0 && setShowDetails(dayData.sales[0])}
                     disabled={dayData.count === 0}
-                    className={`p-2 text-sm rounded-2xl relative font-semibold transition-all ${
+                    className={`p-1.5 sm:p-2 text-xs sm:text-sm rounded-2xl relative font-semibold transition-all ${
                       isToday
                         ? 'bg-ink text-white'
                         : dayData.count > 0

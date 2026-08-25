@@ -96,10 +96,10 @@ const Dashboard: React.FC = () => {
       <div className="space-y-5">
         {/* Greeting hero */}
         <div>
-          <h1 className="text-[32px] sm:text-[38px] leading-tight font-extrabold tracking-tight text-ink">
+          <h1 className="text-[26px] sm:text-[32px] lg:text-[38px] leading-tight font-extrabold tracking-tight text-ink">
             Good {dayPart}, {user?.username}! <span className="inline-block">👋</span>
             <br />
-            Here's your <span className="bg-lime px-2.5 rounded-xl">pharmacy</span> at a glance.
+            Here's your <span className="bg-lime px-2 sm:px-2.5 rounded-xl">pharmacy</span> at a glance.
           </h1>
           <div className="flex flex-wrap items-center gap-2 mt-4">
             <Chip tone="dark">

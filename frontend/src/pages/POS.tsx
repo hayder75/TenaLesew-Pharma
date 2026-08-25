@@ -50,6 +50,7 @@ const POS: React.FC = () => {
   const [otherPayment, setOtherPayment] = useState('');
   const [amountPaid, setAmountPaid] = useState('');
   const [showReceipt, setShowReceipt] = useState(false);
+  const [showCartSheet, setShowCartSheet] = useState(false);
   const [lastSale, setLastSale] = useState<{ items: CartItem[]; total: number; date: string; paymentMethod: string; change: number } | null>(null);
 
   const filteredProducts = mockProducts.filter(
@@ -117,7 +118,7 @@ const POS: React.FC = () => {
 
   return (
     <Layout>
-      <div className="space-y-4">
+      <div className="space-y-4 pb-28 lg:pb-0">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <h1 className="text-[26px] font-extrabold tracking-tight text-ink">Point of Sale</h1>
           <Chip tone="lime">Main Branch</Chip>
@@ -173,59 +174,138 @@ const POS: React.FC = () => {
             </div>
           </div>
 
-          {/* Cart */}
-          <div className="card h-fit sticky top-4 overflow-hidden">
-            <div className="p-4 border-b border-line flex items-center justify-between bg-cream-soft">
-              <h2 className="font-extrabold tracking-tight text-ink flex items-center gap-2">
-                <span className="w-7 h-7 bg-ink rounded-full flex items-center justify-center"><ShoppingCart className="w-3.5 h-3.5 text-lime" /></span>
-                Cart ({cart.length})
-              </h2>
-              {cart.length > 0 && (
-                <button onClick={() => setCart([])} className="text-xs font-bold text-[#a34141] bg-blush-soft px-3 py-1 rounded-full">Clear</button>
-              )}
-            </div>
-
-            <div className="p-4 max-h-80 overflow-y-auto">
-              {cart.length === 0 ? (
-                <EmptyState icon={ShoppingCart} title="Cart is empty" sub="Tap products to add them" />
-              ) : (
-                <div className="space-y-2">
-                  {cart.map((item) => (
-                    <div key={item.product.id} className="flex items-center gap-2 p-2.5 bg-cream-soft rounded-2xl border border-line">
-                      <div className="flex-1 min-w-0">
-                        <p className="font-bold text-xs text-ink truncate">{item.product.name}</p>
-                        <p className="text-[11px] text-stone-400">${item.product.price.toFixed(2)}</p>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <button onClick={() => updateQuantity(item.product.id, item.quantity - 1)} className="w-6 h-6 bg-white border border-line rounded-full flex items-center justify-center hover:border-lime"><Minus className="w-3 h-3" /></button>
-                        <span className="w-7 text-center text-sm font-bold">{item.quantity}</span>
-                        <button onClick={() => updateQuantity(item.product.id, item.quantity + 1)} className="w-6 h-6 bg-white border border-line rounded-full flex items-center justify-center hover:border-lime"><Plus className="w-3 h-3" /></button>
-                        <button onClick={() => removeFromCart(item.product.id)} className="w-6 h-6 bg-blush-soft text-[#a34141] rounded-full flex items-center justify-center ml-1"><Trash2 className="w-3 h-3" /></button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {cart.length > 0 && (
-              <div className="p-4 border-t border-line space-y-3 bg-cream-soft">
-                <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-stone-400">Discount %</label>
-                  <input type="number" min="0" max="100" value={discount} onChange={(e) => setDiscount(Math.min(100, Math.max(0, parseInt(e.target.value) || 0)))} className="input mt-1" />
-                </div>
-                <div className="space-y-1.5 text-sm">
-                  <div className="flex justify-between text-stone-500"><span>Subtotal</span><span className="font-semibold text-ink">${subtotal.toFixed(2)}</span></div>
-                  {discount > 0 && <div className="flex justify-between text-[#2f6b46] font-semibold"><span>Discount ({discount}%)</span><span>-${discountAmount.toFixed(2)}</span></div>}
-                  <div className="flex justify-between text-lg font-extrabold text-ink pt-1"><span>Total</span><span>${total.toFixed(2)}</span></div>
-                </div>
-                <button onClick={() => { setAmountPaid(total.toString()); setShowBilling(true); }} className="btn btn-dark w-full !py-3.5">
-                  Proceed to Billing <ArrowRight className="w-5 h-5" />
-                </button>
+          {/* Cart — desktop */}
+          <div className="hidden lg:block">
+            <div className="card h-fit sticky top-4 overflow-hidden">
+              <div className="p-4 border-b border-line flex items-center justify-between bg-cream-soft">
+                <h2 className="font-extrabold tracking-tight text-ink flex items-center gap-2">
+                  <span className="w-7 h-7 bg-ink rounded-full flex items-center justify-center"><ShoppingCart className="w-3.5 h-3.5 text-lime" /></span>
+                  Cart ({cart.length})
+                </h2>
+                {cart.length > 0 && (
+                  <button onClick={() => setCart([])} className="text-xs font-bold text-[#a34141] bg-blush-soft px-3 py-1 rounded-full">Clear</button>
+                )}
               </div>
-            )}
+
+              <div className="p-4 max-h-80 overflow-y-auto">
+                {cart.length === 0 ? (
+                  <EmptyState icon={ShoppingCart} title="Cart is empty" sub="Tap products to add them" />
+                ) : (
+                  <div className="space-y-2">
+                    {cart.map((item) => (
+                      <div key={item.product.id} className="flex items-center gap-2 p-2.5 bg-cream-soft rounded-2xl border border-line">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-xs text-ink truncate">{item.product.name}</p>
+                          <p className="text-[11px] text-stone-400">${item.product.price.toFixed(2)}</p>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <button onClick={() => updateQuantity(item.product.id, item.quantity - 1)} className="w-6 h-6 bg-white border border-line rounded-full flex items-center justify-center hover:border-lime"><Minus className="w-3 h-3" /></button>
+                          <span className="w-7 text-center text-sm font-bold">{item.quantity}</span>
+                          <button onClick={() => updateQuantity(item.product.id, item.quantity + 1)} className="w-6 h-6 bg-white border border-line rounded-full flex items-center justify-center hover:border-lime"><Plus className="w-3 h-3" /></button>
+                          <button onClick={() => removeFromCart(item.product.id)} className="w-6 h-6 bg-blush-soft text-[#a34141] rounded-full flex items-center justify-center ml-1"><Trash2 className="w-3 h-3" /></button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {cart.length > 0 && (
+                <div className="p-4 border-t border-line space-y-3 bg-cream-soft">
+                  <div>
+                    <label className="text-xs font-bold uppercase tracking-wider text-stone-400">Discount %</label>
+                    <input type="number" min="0" max="100" value={discount} onChange={(e) => setDiscount(Math.min(100, Math.max(0, parseInt(e.target.value) || 0)))} className="input mt-1" />
+                  </div>
+                  <div className="space-y-1.5 text-sm">
+                    <div className="flex justify-between text-stone-500"><span>Subtotal</span><span className="font-semibold text-ink">${subtotal.toFixed(2)}</span></div>
+                    {discount > 0 && <div className="flex justify-between text-[#2f6b46] font-semibold"><span>Discount ({discount}%)</span><span>-${discountAmount.toFixed(2)}</span></div>}
+                    <div className="flex justify-between text-lg font-extrabold text-ink pt-1"><span>Total</span><span>${total.toFixed(2)}</span></div>
+                  </div>
+                  <button onClick={() => { setAmountPaid(total.toString()); setShowBilling(true); }} className="btn btn-dark w-full !py-3.5">
+                    Proceed to Billing <ArrowRight className="w-5 h-5" />
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
+
+        {/* Cart — mobile floating bar */}
+        {cart.length > 0 && !showBilling && !showReceipt && !showCartSheet && (
+          <div className="lg:hidden fixed bottom-4 inset-x-4 z-40">
+            <button
+              onClick={() => setShowCartSheet(true)}
+              className="card-dark w-full !rounded-full pl-5 pr-2 py-2 flex items-center justify-between shadow-pop"
+            >
+              <div className="text-left">
+                <p className="text-[11px] text-white/50 font-bold uppercase tracking-wider">{cart.length} {cart.length === 1 ? 'item' : 'items'}</p>
+                <p className="font-extrabold text-lime text-lg leading-tight">${total.toFixed(2)}</p>
+              </div>
+              <span className="btn btn-lime !py-2.5">View Cart <ArrowRight className="w-4 h-4" /></span>
+            </button>
+          </div>
+        )}
+
+        {/* Cart — mobile bottom sheet */}
+        {showCartSheet && (
+          <div className="lg:hidden fixed inset-0 z-50">
+            <div className="absolute inset-0 bg-ink/40 backdrop-blur-[2px]" onClick={() => setShowCartSheet(false)} />
+            <div className="absolute bottom-0 inset-x-0 bg-white rounded-t-[28px] max-h-[88vh] flex flex-col shadow-pop" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+              <div className="p-4 border-b border-line flex items-center justify-between shrink-0">
+                <h2 className="font-extrabold tracking-tight text-ink flex items-center gap-2">
+                  <span className="w-7 h-7 bg-ink rounded-full flex items-center justify-center"><ShoppingCart className="w-3.5 h-3.5 text-lime" /></span>
+                  Cart ({cart.length})
+                </h2>
+                <div className="flex items-center gap-2">
+                  {cart.length > 0 && (
+                    <button onClick={() => setCart([])} className="text-xs font-bold text-[#a34141] bg-blush-soft px-3 py-1.5 rounded-full">Clear</button>
+                  )}
+                  <button onClick={() => setShowCartSheet(false)} className="p-2 hover:bg-cream rounded-full text-stone-400"><X className="w-5 h-5" /></button>
+                </div>
+              </div>
+
+              <div className="p-4 overflow-y-auto flex-1">
+                {cart.length === 0 ? (
+                  <EmptyState icon={ShoppingCart} title="Cart is empty" sub="Tap products to add them" />
+                ) : (
+                  <div className="space-y-2">
+                    {cart.map((item) => (
+                      <div key={item.product.id} className="flex items-center gap-2 p-3 bg-cream-soft rounded-2xl border border-line">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-sm text-ink truncate">{item.product.name}</p>
+                          <p className="text-xs text-stone-400">${item.product.price.toFixed(2)}</p>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <button onClick={() => updateQuantity(item.product.id, item.quantity - 1)} className="w-8 h-8 bg-white border border-line rounded-full flex items-center justify-center hover:border-lime"><Minus className="w-3.5 h-3.5" /></button>
+                          <span className="w-8 text-center text-sm font-bold">{item.quantity}</span>
+                          <button onClick={() => updateQuantity(item.product.id, item.quantity + 1)} className="w-8 h-8 bg-white border border-line rounded-full flex items-center justify-center hover:border-lime"><Plus className="w-3.5 h-3.5" /></button>
+                          <button onClick={() => removeFromCart(item.product.id)} className="w-8 h-8 bg-blush-soft text-[#a34141] rounded-full flex items-center justify-center ml-1"><Trash2 className="w-3.5 h-3.5" /></button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {cart.length > 0 && (
+                <div className="p-4 border-t border-line space-y-3 bg-cream-soft shrink-0">
+                  <div>
+                    <label className="text-xs font-bold uppercase tracking-wider text-stone-400">Discount %</label>
+                    <input type="number" min="0" max="100" value={discount} onChange={(e) => setDiscount(Math.min(100, Math.max(0, parseInt(e.target.value) || 0)))} className="input mt-1" />
+                  </div>
+                  <div className="space-y-1.5 text-sm">
+                    <div className="flex justify-between text-stone-500"><span>Subtotal</span><span className="font-semibold text-ink">${subtotal.toFixed(2)}</span></div>
+                    {discount > 0 && <div className="flex justify-between text-[#2f6b46] font-semibold"><span>Discount ({discount}%)</span><span>-${discountAmount.toFixed(2)}</span></div>}
+                    <div className="flex justify-between text-lg font-extrabold text-ink pt-1"><span>Total</span><span>${total.toFixed(2)}</span></div>
+                  </div>
+                  <button onClick={() => { setAmountPaid(total.toString()); setShowCartSheet(false); setShowBilling(true); }} className="btn btn-dark w-full !py-3.5">
+                    Proceed to Billing <ArrowRight className="w-5 h-5" />
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Billing modal */}
         {showBilling && (
@@ -283,9 +363,9 @@ const POS: React.FC = () => {
                 </div>
               </div>
 
-              <div className="p-4 border-t border-line sticky bottom-0 bg-white flex gap-3">
-                <button onClick={() => setShowBilling(false)} className="btn btn-ghost flex-1 !py-3">Cancel</button>
-                <button onClick={handleCheckout} disabled={change < 0} className="btn btn-lime flex-1 !py-3">
+              <div className="p-4 border-t border-line sticky bottom-0 bg-white flex flex-col-reverse sm:flex-row gap-3 [&>*]:w-full sm:[&>*]:flex-1">
+                <button onClick={() => setShowBilling(false)} className="btn btn-ghost !py-3">Cancel</button>
+                <button onClick={handleCheckout} disabled={change < 0} className="btn btn-lime !py-3">
                   <Check className="w-5 h-5" /> Complete Payment
                 </button>
               </div>
@@ -328,9 +408,9 @@ const POS: React.FC = () => {
                   </div>
                 )}
 
-                <div className="flex gap-3 print:hidden">
-                  <button onClick={handlePrint} className="btn btn-ghost flex-1"><Printer className="w-4 h-4" />Print</button>
-                  <button onClick={handleNewSale} className="btn btn-dark flex-1">New Sale</button>
+                <div className="flex flex-col-reverse sm:flex-row gap-3 print:hidden [&>*]:w-full sm:[&>*]:flex-1">
+                  <button onClick={handlePrint} className="btn btn-ghost"><Printer className="w-4 h-4" />Print</button>
+                  <button onClick={handleNewSale} className="btn btn-dark">New Sale</button>
                 </div>
               </div>
             </div>

@@ -198,6 +198,15 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           </div>
           <span className="ml-2 font-extrabold text-ink">TenaLesew</span>
         </div>
+        <div className="ml-auto flex items-center gap-1">
+          <button className="relative p-2.5 hover:bg-white rounded-full text-stone-500">
+            <Bell className="w-[18px] h-[18px]" />
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-lime-deep rounded-full ring-2 ring-cream-soft" />
+          </button>
+          <div className="w-9 h-9 bg-lime rounded-full flex items-center justify-center">
+            <span className="text-sm font-extrabold text-ink">{user?.username?.charAt(0).toUpperCase()}</span>
+          </div>
+        </div>
       </div>
 
       <div className="hidden lg:block">{sidebar}</div>

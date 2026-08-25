@@ -87,10 +87,10 @@ const Inventory: React.FC = () => {
           </div>
         </div>
 
-        {/* Products table */}
-        <div className="card overflow-hidden">
+        {/* Products — table (desktop) */}
+        <div className="card overflow-hidden hidden md:block">
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[760px]">
               <thead className="bg-cream-soft border-b border-line">
                 <tr>
                   <Th>Product</Th>
@@ -142,6 +142,45 @@ const Inventory: React.FC = () => {
             </table>
             {filteredProducts.length === 0 && <EmptyState icon={Package} title="No products found" />}
           </div>
+        </div>
+
+        {/* Products — cards (mobile) */}
+        <div className="md:hidden space-y-3">
+          {filteredProducts.map((product) => {
+            const isLowStock = (product.minStock || 10) >= product.stock;
+            const isOutOfStock = product.stock === 0;
+            const isExpiringSoon = product.expiryDate && new Date(product.expiryDate) < new Date(EXPIRY_CUTOFF);
+            return (
+              <div key={product.id} className="card p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-extrabold text-ink tracking-tight truncate">{product.name}</p>
+                    <p className="text-xs text-stone-400">{product.supplier}</p>
+                  </div>
+                  <Chip tone={isOutOfStock ? 'blush' : isLowStock ? 'sun' : 'mint'}>{product.stock} in stock</Chip>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 mt-3">
+                  <Chip tone="neutral">{getCategoryIcon(product.category)}{product.category}</Chip>
+                  <Chip tone="neutral"><Barcode className="w-3 h-3" />{product.barcode}</Chip>
+                  {product.expiryDate && (
+                    <Chip tone={isExpiringSoon ? 'blush' : 'neutral'}>
+                      <Calendar className="w-3 h-3" />{product.expiryDate}
+                    </Chip>
+                  )}
+                </div>
+                <div className="flex items-center justify-between mt-3 pt-3 border-t border-line">
+                  <p className="font-extrabold text-ink">${product.price.toFixed(2)}</p>
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => setSelectedProduct(product)} className="p-2 text-stone-400 hover:text-ink hover:bg-lime-soft rounded-full"><Edit className="w-4 h-4" /></button>
+                    <button className="p-2 text-stone-400 hover:text-[#a34141] hover:bg-blush-soft rounded-full"><Trash2 className="w-4 h-4" /></button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+          {filteredProducts.length === 0 && (
+            <div className="card"><EmptyState icon={Package} title="No products found" /></div>
+          )}
         </div>
 
         {/* Add product modal */}

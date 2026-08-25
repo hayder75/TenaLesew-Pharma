@@ -190,12 +190,13 @@ const Wholesale: React.FC = () => {
         )}
 
         {activeTab === 'clients' && (
-          <div className="card overflow-hidden">
+          <>
+          <div className="card overflow-hidden hidden md:block">
             <div className="p-4 border-b border-line bg-cream-soft flex justify-between items-center">
               <h2 className="font-extrabold tracking-tight text-ink">Pharmacy Clients</h2>
               <button className="btn btn-dark !py-2 !px-4 !text-xs">Add Client</button>
             </div>
-            <table className="w-full">
+            <table className="w-full min-w-[560px]">
               <thead className="bg-cream-soft border-b border-line">
                 <tr>
                   <Th>Client</Th>
@@ -223,6 +224,28 @@ const Wholesale: React.FC = () => {
               </tbody>
             </table>
           </div>
+          {/* Cards (mobile) */}
+          <div className="md:hidden space-y-3">
+            <div className="flex justify-end">
+              <button className="btn btn-dark !py-2 !px-4 !text-xs">Add Client</button>
+            </div>
+            {mockClients.map((client) => (
+              <div key={client.id} className="card p-4 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <Avatar name={client.name} tone="lav" size="sm" />
+                  <div className="min-w-0">
+                    <p className="font-extrabold text-ink tracking-tight truncate">{client.name}</p>
+                    <p className="text-xs text-stone-400">{client.phone}</p>
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  {client.balance > 0 ? <Chip tone="blush">${client.balance.toFixed(2)} due</Chip> : <Chip tone="mint">Clear</Chip>}
+                  <button className="block ml-auto mt-1.5 font-semibold text-ink underline decoration-lime decoration-2 underline-offset-4 text-sm">View</button>
+                </div>
+              </div>
+            ))}
+          </div>
+          </>
         )}
 
         {showInvoice && lastOrder && (
@@ -243,9 +266,9 @@ const Wholesale: React.FC = () => {
                   ))}
                 </div>
                 <div className="flex justify-between text-xl font-extrabold mb-6 text-ink"><span>Total</span><span>${lastOrder.total.toFixed(2)}</span></div>
-                <div className="flex gap-3">
-                  <button onClick={() => window.print()} className="btn btn-ghost flex-1">Print</button>
-                  <button onClick={handleNewOrder} className="btn btn-dark flex-1">New Order</button>
+                <div className="flex flex-col-reverse sm:flex-row gap-3 [&>*]:w-full sm:[&>*]:flex-1">
+                  <button onClick={() => window.print()} className="btn btn-ghost">Print</button>
+                  <button onClick={handleNewOrder} className="btn btn-dark">New Order</button>
                 </div>
               </div>
             </div>

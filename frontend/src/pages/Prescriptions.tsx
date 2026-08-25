@@ -87,9 +87,9 @@ const Prescriptions: React.FC = () => {
           />
         </div>
 
-        {/* List */}
-        <div className="card overflow-hidden">
-          <table className="w-full">
+        {/* List — table (desktop) */}
+        <div className="card overflow-hidden hidden md:block">
+          <table className="w-full min-w-[680px]">
             <thead className="bg-cream-soft border-b border-line">
               <tr>
                 <Th>ID</Th>
@@ -130,6 +130,40 @@ const Prescriptions: React.FC = () => {
             </tbody>
           </table>
           {filteredPrescriptions.length === 0 && <EmptyState icon={FileText} title="No prescriptions found" />}
+        </div>
+
+        {/* List — cards (mobile) */}
+        <div className="md:hidden space-y-3">
+          {filteredPrescriptions.map((prescription) => (
+            <div key={prescription.id} className="card p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-extrabold text-ink tracking-tight truncate">{prescription.customerName}</p>
+                  <p className="text-xs text-stone-400">{prescription.phone} · #{prescription.id}</p>
+                </div>
+                <select
+                  value={prescription.status}
+                  onChange={(e) => updateStatus(prescription.id, e.target.value as Prescription['status'])}
+                  className={`chip border-0 cursor-pointer shrink-0 ${prescription.status === 'pending' ? 'bg-sun-soft text-[#8a6d10]' : prescription.status === 'processed' ? 'bg-sky-soft text-[#3d5a94]' : 'bg-mint-soft text-[#2f6b46]'}`}
+                >
+                  <option value="pending">Pending</option>
+                  <option value="processed">Processed</option>
+                  <option value="completed">Completed</option>
+                </select>
+              </div>
+              <div className="flex items-center justify-between mt-3 pt-3 border-t border-line">
+                <p className="text-xs text-stone-400 font-semibold">{prescription.uploadedAt}</p>
+                <div className="flex items-center gap-1">
+                  <button className="p-2 text-stone-400 hover:text-ink hover:bg-lime-soft rounded-full"><Eye className="w-4 h-4" /></button>
+                  <button className="p-2 text-stone-400 hover:text-ink hover:bg-cream-deep rounded-full"><Download className="w-4 h-4" /></button>
+                  <button className="p-2 text-stone-400 hover:text-[#a34141] hover:bg-blush-soft rounded-full"><Trash2 className="w-4 h-4" /></button>
+                </div>
+              </div>
+            </div>
+          ))}
+          {filteredPrescriptions.length === 0 && (
+            <div className="card"><EmptyState icon={FileText} title="No prescriptions found" /></div>
+          )}
         </div>
 
         {/* Upload modal */}

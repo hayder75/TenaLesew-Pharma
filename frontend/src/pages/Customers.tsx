@@ -64,8 +64,8 @@ const Customers: React.FC = () => {
           </select>
         </div>
 
-        <div className="card overflow-hidden">
-          <table className="w-full">
+        <div className="card overflow-hidden hidden md:block">
+          <table className="w-full min-w-[680px]">
             <thead className="bg-cream-soft border-b border-line">
               <tr>
                 <Th>Customer</Th>
@@ -103,6 +103,39 @@ const Customers: React.FC = () => {
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Cards (mobile) */}
+        <div className="md:hidden space-y-3">
+          {filteredCustomers.map((customer) => (
+            <div key={customer.id} className="card p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <Avatar name={customer.name} tone={customer.type === 'wholesale' ? 'lav' : 'lime'} size="sm" />
+                  <div className="min-w-0">
+                    <p className="font-extrabold text-ink tracking-tight truncate">{customer.name}</p>
+                    <p className="text-xs text-stone-400 truncate">{customer.phone} · {customer.email}</p>
+                  </div>
+                </div>
+                <Chip tone={customer.type === 'wholesale' ? 'lav' : 'mint'}>{customer.type}</Chip>
+              </div>
+              <div className="grid grid-cols-2 gap-2 mt-3">
+                <div className="bg-cream-soft border border-line rounded-2xl p-2.5">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Purchases</p>
+                  <p className="font-extrabold text-ink">${customer.totalPurchases.toLocaleString()}</p>
+                </div>
+                <div className="bg-cream-soft border border-line rounded-2xl p-2.5">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Credit</p>
+                  <p className={`font-extrabold ${customer.creditBalance > 0 ? 'text-[#a34141]' : 'text-[#2f6b46]'}`}>${customer.creditBalance.toLocaleString()}</p>
+                </div>
+              </div>
+              <div className="flex justify-end gap-1 mt-2">
+                <button className="p-2 text-stone-400 hover:text-ink hover:bg-lime-soft rounded-full"><Eye className="w-4 h-4" /></button>
+                <button className="p-2 text-stone-400 hover:text-ink hover:bg-cream-deep rounded-full"><Edit className="w-4 h-4" /></button>
+                <button className="p-2 text-stone-400 hover:text-[#a34141] hover:bg-blush-soft rounded-full"><Trash2 className="w-4 h-4" /></button>
+              </div>
+            </div>
+          ))}
         </div>
 
         <Modal

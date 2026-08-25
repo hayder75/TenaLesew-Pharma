@@ -170,8 +170,9 @@ const Finance: React.FC = () => {
         )}
 
         {activeTab === 'transactions' && (
-          <div className="card overflow-hidden">
-            <table className="w-full">
+          <>
+          <div className="card overflow-hidden hidden md:block">
+            <table className="w-full min-w-[720px]">
               <thead className="bg-cream-soft border-b border-line">
                 <tr>
                   <Th>Date</Th>
@@ -200,11 +201,31 @@ const Finance: React.FC = () => {
               </tbody>
             </table>
           </div>
+          {/* Cards (mobile) */}
+          <div className="md:hidden space-y-3">
+            {filteredTransactions.slice(0, 30).map((transaction) => (
+              <div key={transaction.id} className="card p-4 flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-bold text-ink truncate">{transaction.description}</p>
+                  <p className="text-xs text-stone-400">{transaction.date}</p>
+                  <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                    <Chip tone="sky">{transaction.cashier}</Chip>
+                    <Chip tone="neutral">{transaction.category}</Chip>
+                  </div>
+                </div>
+                <p className={`font-extrabold shrink-0 ${transaction.type === 'income' ? 'text-[#2f6b46]' : 'text-[#a34141]'}`}>
+                  {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toFixed(2)}
+                </p>
+              </div>
+            ))}
+          </div>
+          </>
         )}
 
         {activeTab === 'cashiers' && (
           <div className="card overflow-hidden">
-            <table className="w-full">
+            <div className="overflow-x-auto">
+            <table className="w-full min-w-[640px]">
               <thead className="bg-cream-soft border-b border-line">
                 <tr>
                   <Th>Cashier</Th>
@@ -231,6 +252,7 @@ const Finance: React.FC = () => {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         )}
 

@@ -78,8 +78,9 @@ const Suppliers: React.FC = () => {
         </div>
 
         {activeTab === 'suppliers' && (
-          <div className="card overflow-hidden">
-            <table className="w-full">
+          <>
+          <div className="card overflow-hidden hidden md:block">
+            <table className="w-full min-w-[720px]">
               <thead className="bg-cream-soft border-b border-line">
                 <tr>
                   <Th>Supplier</Th>
@@ -111,11 +112,36 @@ const Suppliers: React.FC = () => {
             </table>
             {filteredSuppliers.length === 0 && <EmptyState icon={Truck} title="No suppliers found" />}
           </div>
+          {/* Cards (mobile) */}
+          <div className="md:hidden space-y-3">
+            {filteredSuppliers.map((supplier) => (
+              <div key={supplier.id} className="card p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-extrabold text-ink tracking-tight truncate">{supplier.name}</p>
+                    <p className="text-xs text-stone-400 truncate">{supplier.phone} · {supplier.address}</p>
+                    <p className="text-xs text-stone-400 truncate">{supplier.email}</p>
+                  </div>
+                  {supplier.balance > 0 ? <Chip tone="blush">${supplier.balance.toLocaleString()}</Chip> : <Chip tone="mint">Clear</Chip>}
+                </div>
+                <div className="flex justify-end gap-1 mt-3 pt-3 border-t border-line">
+                  <button className="p-2 text-stone-400 hover:text-ink hover:bg-lime-soft rounded-full"><Eye className="w-4 h-4" /></button>
+                  <button className="p-2 text-stone-400 hover:text-ink hover:bg-cream-deep rounded-full"><Edit className="w-4 h-4" /></button>
+                  <button className="p-2 text-stone-400 hover:text-[#a34141] hover:bg-blush-soft rounded-full"><Trash2 className="w-4 h-4" /></button>
+                </div>
+              </div>
+            ))}
+            {filteredSuppliers.length === 0 && (
+              <div className="card"><EmptyState icon={Truck} title="No suppliers found" /></div>
+            )}
+          </div>
+          </>
         )}
 
         {activeTab === 'purchases' && (
-          <div className="card overflow-hidden">
-            <table className="w-full">
+          <>
+          <div className="card overflow-hidden hidden md:block">
+            <table className="w-full min-w-[640px]">
               <thead className="bg-cream-soft border-b border-line">
                 <tr>
                   <Th>PO#</Th>
@@ -142,6 +168,22 @@ const Suppliers: React.FC = () => {
               </tbody>
             </table>
           </div>
+          {/* Cards (mobile) */}
+          <div className="md:hidden space-y-3">
+            {mockPurchases.map((purchase) => (
+              <div key={purchase.id} className="card p-4 flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-extrabold text-ink tracking-tight">PO #{purchase.id}</p>
+                  <p className="text-xs text-stone-400 truncate">{purchase.supplier} · {purchase.date}</p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="font-extrabold text-ink">${purchase.total.toLocaleString()}</p>
+                  <Chip tone={purchase.status === 'received' ? 'mint' : purchase.status === 'pending' ? 'sun' : 'blush'} className="mt-1">{purchase.status}</Chip>
+                </div>
+              </div>
+            ))}
+          </div>
+          </>
         )}
 
         <Modal

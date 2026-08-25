@@ -82,7 +82,7 @@ const Login: React.FC = () => {
             <p className="font-extrabold text-xl tracking-tight text-ink">TenaLesew Pharma</p>
           </div>
 
-          <h2 className="text-[32px] font-extrabold tracking-tight text-ink leading-tight">
+          <h2 className="text-[28px] sm:text-[32px] font-extrabold tracking-tight text-ink leading-tight">
             Welcome <span className="bg-lime px-2 rounded-lg">back!</span>
           </h2>
           <p className="text-stone-500 mt-2 text-sm">Sign in to your pharmacy workspace.</p>

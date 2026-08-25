@@ -128,7 +128,7 @@ export const Tabs: React.FC<{
   active: string;
   onChange: (id: string) => void;
 }> = ({ tabs, active, onChange }) => (
-  <div className="inline-flex gap-1 bg-cream-deep/60 p-1 rounded-full">
+  <div className="flex gap-1 bg-cream-deep/60 p-1 rounded-full w-fit max-w-full overflow-x-auto">
     {tabs.map((tab) => {
       const Icon = tab.icon;
       const isActive = active === tab.id;
@@ -136,7 +136,7 @@ export const Tabs: React.FC<{
         <button
           key={tab.id}
           onClick={() => onChange(tab.id)}
-          className={`px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-1.5 transition-all ${
+          className={`px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-1.5 transition-all shrink-0 ${
             isActive ? 'bg-ink text-white shadow-card' : 'text-stone-500 hover:text-ink'
           }`}
         >
@@ -169,7 +169,7 @@ export const Modal: React.FC<{
           </button>
         </div>
         <div className="p-5 space-y-3.5 overflow-y-auto">{children}</div>
-        {footer && <div className="px-5 py-4 border-t border-line flex gap-3 shrink-0">{footer}</div>}
+        {footer && <div className="px-5 py-4 border-t border-line flex flex-col-reverse sm:flex-row gap-3 shrink-0 [&>*]:w-full sm:[&>*]:w-auto sm:[&>*]:flex-1">{footer}</div>}
       </div>
     </div>
   );
