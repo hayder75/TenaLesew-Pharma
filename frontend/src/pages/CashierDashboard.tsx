@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Layout from '../components/Layout';
 import { useAuth } from '../lib/AuthContext';
 import { mockProducts } from '../lib/mockData';
+import { PageHeader, StatCard, Modal } from '../components/ui';
 import { DollarSign, ShoppingCart, TrendingUp, Printer, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface SaleWithUser {
@@ -44,7 +45,7 @@ const generateCashierSales = (): SaleWithUser[] => {
       items,
       paymentMethod: methods[Math.floor(Math.random() * methods.length)],
       cashier: cashiers[Math.floor(Math.random() * cashiers.length)],
-      customerName: Math.random() > 0.5 ? `Customer ${i}` : undefined
+      customerName: Math.random() > 0.5 ? `Customer ${i}` : undefined,
     });
   }
   return sales.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -74,17 +75,17 @@ const CashierDashboard: React.FC = () => {
   const getSalesForDay = (day: number) => {
     const dayStr = day.toString().padStart(2, '0');
     const dateStr = `2026-04-${dayStr}`;
-    const daySales = mockCashierSales.filter(s => s.cashier === user?.username && s.date.startsWith(dateStr));
+    const daySales = mockCashierSales.filter((s) => s.cashier === user?.username && s.date.startsWith(dateStr));
     const total = daySales.reduce((sum, s) => sum + s.total, 0);
     return { count: daySales.length, total, sales: daySales };
   };
 
-  const monthSales = mockCashierSales.filter(s => s.cashier === user?.username && s.date.startsWith('2026-04'));
+  const monthSales = mockCashierSales.filter((s) => s.cashier === user?.username && s.date.startsWith('2026-04'));
   const monthTotal = monthSales.reduce((sum, s) => sum + s.total, 0);
-  const todaySales = monthSales.filter(s => s.date.includes(today.getDate().toString().padStart(2, '0')));
+  const todaySales = monthSales.filter((s) => s.date.includes(today.getDate().toString().padStart(2, '0')));
   const todayTotal = todaySales.reduce((sum, s) => sum + s.total, 0);
 
-  const mySales = mockCashierSales.filter(s => s.cashier === user?.username);
+  const mySales = mockCashierSales.filter((s) => s.cashier === user?.username);
 
   const prevMonth = () => setSelectedDate(new Date(currentYear, currentMonth - 1, 1));
   const nextMonth = () => setSelectedDate(new Date(currentYear, currentMonth + 1, 1));
@@ -94,79 +95,59 @@ const CashierDashboard: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">My Sales</h1>
-            <p className="text-gray-500 mt-1">View your daily, weekly and monthly sales</p>
-          </div>
-          <button onClick={() => window.print()} className="px-4 py-2 border border-gray-200 rounded-xl hover:bg-gray-50 flex items-center gap-2">
-            <Printer className="w-4 h-4" /> Print Report
-          </button>
-        </div>
+        <PageHeader
+          title="My Sales"
+          subtitle="View your daily, weekly and monthly sales"
+          actions={
+            <button onClick={() => window.print()} className="btn btn-ghost">
+              <Printer className="w-4 h-4" /> Print Report
+            </button>
+          }
+        />
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="card p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center"><DollarSign className="w-5 h-5 text-green-600" /></div>
-              <div>
-                <p className="text-sm text-gray-500">Today's Sales</p>
-                <p className="text-xl font-bold text-green-600">${todayTotal.toFixed(2)}</p>
-                <p className="text-xs text-gray-400">{todaySales.length} transactions</p>
-              </div>
-            </div>
-          </div>
-          <div className="card p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center"><TrendingUp className="w-5 h-5 text-blue-600" /></div>
-              <div>
-                <p className="text-sm text-gray-500">This Month</p>
-                <p className="text-xl font-bold text-blue-600">${monthTotal.toFixed(2)}</p>
-                <p className="text-xs text-gray-400">{monthSales.length} transactions</p>
-              </div>
-            </div>
-          </div>
-          <div className="card p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center"><ShoppingCart className="w-5 h-5 text-purple-600" /></div>
-              <div>
-                <p className="text-sm text-gray-500">Total Sales</p>
-                <p className="text-xl font-bold text-purple-600">${mySales.reduce((s, sale) => s + sale.total, 0).toFixed(2)}</p>
-                <p className="text-xs text-gray-400">{mySales.length} all time</p>
-              </div>
-            </div>
-          </div>
+          <StatCard label="Today's Sales" value={`$${todayTotal.toFixed(2)}`} icon={DollarSign} tone="lime" sub={`${todaySales.length} transactions`} />
+          <StatCard label="This Month" value={`$${monthTotal.toFixed(2)}`} icon={TrendingUp} tone="sky" sub={`${monthSales.length} transactions`} />
+          <StatCard label="Total Sales" value={`$${mySales.reduce((s, sale) => s + sale.total, 0).toFixed(2)}`} icon={ShoppingCart} tone="lav" sub={`${mySales.length} all time`} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-2 card p-4">
+          {/* Calendar */}
+          <div className="lg:col-span-2 card p-5">
             <div className="flex items-center justify-between mb-4">
-              <button onClick={prevMonth} className="p-2 hover:bg-gray-100 rounded-lg"><ChevronLeft className="w-5 h-5" /></button>
-              <h2 className="text-lg font-semibold">{monthNames[currentMonth]} {currentYear}</h2>
-              <button onClick={nextMonth} className="p-2 hover:bg-gray-100 rounded-lg"><ChevronRight className="w-5 h-5" /></button>
+              <button onClick={prevMonth} className="p-2 hover:bg-cream rounded-full text-stone-500"><ChevronLeft className="w-5 h-5" /></button>
+              <h2 className="font-extrabold tracking-tight text-ink">{monthNames[currentMonth]} {currentYear}</h2>
+              <button onClick={nextMonth} className="p-2 hover:bg-cream rounded-full text-stone-500"><ChevronRight className="w-5 h-5" /></button>
             </div>
 
             <div className="grid grid-cols-7 gap-1 text-center mb-2">
-              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
-                <div key={d} className="text-xs font-medium text-gray-500 py-2">{d}</div>
+              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
+                <div key={d} className="text-[11px] font-bold uppercase tracking-wider text-stone-400 py-2">{d}</div>
               ))}
             </div>
 
-            <div className="grid grid-cols-7 gap-1">
+            <div className="grid grid-cols-7 gap-1.5">
               {days.map((day, index) => {
-                if (!day) return <div key={index} className="p-2"></div>;
+                if (!day) return <div key={index} className="p-2" />;
                 const dayData = getSalesForDay(day);
                 const isToday = day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
-                
+
                 return (
                   <button
                     key={day}
                     onClick={() => dayData.count > 0 && setShowDetails(dayData.sales[0])}
                     disabled={dayData.count === 0}
-                    className={`p-2 text-sm rounded-lg relative ${isToday ? 'bg-blue-600 text-white' : dayData.count > 0 ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-gray-50 text-gray-400'} disabled:cursor-not-allowed`}
+                    className={`p-2 text-sm rounded-2xl relative font-semibold transition-all ${
+                      isToday
+                        ? 'bg-ink text-white'
+                        : dayData.count > 0
+                        ? 'bg-lime-soft text-[#5c6b12] hover:bg-lime hover:text-ink'
+                        : 'bg-cream-soft text-stone-300'
+                    } disabled:cursor-not-allowed`}
                   >
                     {day}
                     {dayData.count > 0 && (
-                      <div className={`absolute -top-1 -right-1 w-4 h-4 rounded-full text-xs flex items-center justify-center ${isToday ? 'bg-white text-blue-600' : 'bg-green-500 text-white'}`}>
+                      <div className={`absolute -top-1 -right-1 w-5 h-5 rounded-full text-[10px] font-extrabold flex items-center justify-center ${isToday ? 'bg-lime text-ink' : 'bg-ink text-lime'}`}>
                         {dayData.count}
                       </div>
                     )}
@@ -175,29 +156,30 @@ const CashierDashboard: React.FC = () => {
               })}
             </div>
 
-            <div className="mt-4 flex gap-4 text-sm">
-              <div className="flex items-center gap-2"><div className="w-3 h-3 bg-green-100 rounded"></div><span className="text-gray-500">Has sales</span></div>
-              <div className="flex items-center gap-2"><div className="w-3 h-3 bg-blue-600 rounded"></div><span className="text-gray-500">Today</span></div>
-              <div className="flex items-center gap-2"><div className="w-3 h-3 bg-gray-50 rounded"></div><span className="text-gray-500">No sales</span></div>
+            <div className="mt-4 flex gap-4 text-xs font-semibold">
+              <div className="flex items-center gap-2"><div className="w-3 h-3 bg-lime-soft border border-lime rounded"></div><span className="text-stone-400">Has sales</span></div>
+              <div className="flex items-center gap-2"><div className="w-3 h-3 bg-ink rounded"></div><span className="text-stone-400">Today</span></div>
+              <div className="flex items-center gap-2"><div className="w-3 h-3 bg-cream-soft border border-line rounded"></div><span className="text-stone-400">No sales</span></div>
             </div>
           </div>
 
-          <div className="card p-4">
-            <h3 className="font-semibold mb-4">Today's Transactions</h3>
+          {/* Today's transactions */}
+          <div className="card p-5">
+            <h3 className="font-extrabold tracking-tight text-ink mb-3">Today's transactions</h3>
             <div className="space-y-2 max-h-96 overflow-y-auto">
               {todaySales.length === 0 ? (
-                <p className="text-gray-400 text-center py-4">No sales today</p>
+                <p className="text-stone-400 text-center py-6 text-sm">No sales today</p>
               ) : (
-                todaySales.map(sale => (
-                  <div key={sale.id} className="p-3 bg-gray-50 rounded-lg">
+                todaySales.map((sale) => (
+                  <div key={sale.id} className="p-3 bg-cream-soft border border-line rounded-2xl">
                     <div className="flex justify-between items-start">
                       <div>
-                        <p className="font-medium">Sale #{sale.id}</p>
-                        <p className="text-xs text-gray-500">{sale.date.split(' ')[1]}</p>
+                        <p className="font-bold text-sm text-ink">Sale #{sale.id}</p>
+                        <p className="text-[11px] text-stone-400">{sale.date.split(' ')[1]}</p>
                       </div>
-                      <span className="font-bold text-green-600">${sale.total.toFixed(2)}</span>
+                      <span className="font-extrabold text-[#2f6b46]">${sale.total.toFixed(2)}</span>
                     </div>
-                    <div className="text-xs text-gray-500 mt-1">{sale.items.length} items - {sale.paymentMethod}</div>
+                    <div className="text-[11px] text-stone-400 mt-1 font-semibold">{sale.items.length} items — {sale.paymentMethod}</div>
                   </div>
                 ))
               )}
@@ -205,35 +187,27 @@ const CashierDashboard: React.FC = () => {
           </div>
         </div>
 
-        {showDetails && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full">
-              <div className="p-4 border-b flex items-center justify-between">
-                <h2 className="font-semibold text-lg">Sales Details - {showDetails.date.split(' ')[0]}</h2>
-                <button onClick={() => setShowDetails(null)} className="p-1 hover:bg-gray-100 rounded">×</button>
-              </div>
-              <div className="p-4 space-y-4 max-h-96 overflow-y-auto">
-                {getSalesForDay(parseInt(showDetails.date.split('-')[2])).sales.map(sale => (
-                  <div key={sale.id} className="p-3 border rounded-lg">
-                    <div className="flex justify-between mb-2">
-                      <span className="font-medium">Sale #{sale.id}</span>
-                      <span className="font-bold text-green-600">${sale.total.toFixed(2)}</span>
+        {/* Details modal */}
+        <Modal open={!!showDetails} onClose={() => setShowDetails(null)} title={`Sales details — ${showDetails?.date.split(' ')[0] || ''}`} maxWidth="max-w-lg">
+          {showDetails &&
+            getSalesForDay(parseInt(showDetails.date.split('-')[2])).sales.map((sale) => (
+              <div key={sale.id} className="p-4 border border-line rounded-2xl">
+                <div className="flex justify-between mb-2">
+                  <span className="font-bold text-ink">Sale #{sale.id}</span>
+                  <span className="font-extrabold text-[#2f6b46]">${sale.total.toFixed(2)}</span>
+                </div>
+                <div className="text-xs text-stone-400 mb-2">{sale.date}</div>
+                <div className="space-y-1">
+                  {sale.items.map((item) => (
+                    <div key={item.productId} className="flex justify-between text-sm">
+                      <span className="text-stone-500">{item.productName} x{item.quantity}</span>
+                      <span className="font-semibold">${(item.price * item.quantity).toFixed(2)}</span>
                     </div>
-                    <div className="text-sm text-gray-500 mb-2">{sale.date}</div>
-                    <div className="space-y-1">
-                      {sale.items.map(item => (
-                        <div key={item.productId} className="flex justify-between text-sm">
-                          <span>{item.productName} x{item.quantity}</span>
-                          <span>${(item.price * item.quantity).toFixed(2)}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          </div>
-        )}
+            ))}
+        </Modal>
       </div>
     </Layout>
   );

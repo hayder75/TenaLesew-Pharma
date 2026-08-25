@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Layout from '../components/Layout';
 import { useAuth } from '../lib/AuthContext';
 import { mockUsers, rolePermissions } from '../lib/mockData';
+import { PageHeader, Tabs, Chip, Th, Td, Modal, Avatar } from '../components/ui';
 import { Users, Shield, Plus, Edit, Trash2, Key, Lock } from 'lucide-react';
 
 const SettingsPage: React.FC = () => {
@@ -16,16 +17,24 @@ const SettingsPage: React.FC = () => {
     'settings', 'my_sales'
   ];
 
+  const roleTones: Record<string, 'lime' | 'sky' | 'sun' | 'lav' | 'mint'> = {
+    admin: 'lime',
+    pharmacist: 'sky',
+    cashier: 'sun',
+    inventory: 'lav',
+    wholesale: 'mint',
+  };
+
   if (user?.role !== 'admin') {
     return (
       <Layout>
         <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Lock className="w-8 h-8 text-gray-400" />
+          <div className="card-dark p-10 text-center max-w-sm">
+            <div className="w-16 h-16 bg-lime rounded-3xl flex items-center justify-center mx-auto mb-4">
+              <Lock className="w-7 h-7 text-ink" />
             </div>
-            <h2 className="text-xl font-semibold text-gray-900">Access Denied</h2>
-            <p className="text-gray-500 mt-2">Only admins can access settings.</p>
+            <h2 className="text-xl font-extrabold text-white tracking-tight">Access Denied</h2>
+            <p className="text-white/50 mt-2 text-sm">Only admins can access settings.</p>
           </div>
         </div>
       </Layout>
@@ -35,63 +44,58 @@ const SettingsPage: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-          <p className="text-gray-500 mt-1">Manage users and role permissions</p>
-        </div>
+        <PageHeader title="Settings" subtitle="Manage users and role permissions" />
 
-        <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
-          <button onClick={() => setActiveTab('users')} className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 ${activeTab === 'users' ? 'bg-white shadow text-gray-900' : 'text-gray-500'}`}>
-            <Users className="w-4 h-4" />Users
-          </button>
-          <button onClick={() => setActiveTab('roles')} className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 ${activeTab === 'roles' ? 'bg-white shadow text-gray-900' : 'text-gray-500'}`}>
-            <Shield className="w-4 h-4" />Roles
-          </button>
-        </div>
+        <Tabs
+          tabs={[
+            { id: 'users', label: 'Users', icon: Users },
+            { id: 'roles', label: 'Roles', icon: Shield },
+          ]}
+          active={activeTab}
+          onChange={(id) => setActiveTab(id as typeof activeTab)}
+        />
 
         {activeTab === 'users' && (
           <div className="space-y-4">
             <div className="flex justify-end">
-              <button onClick={() => setShowAddUser(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-medium flex items-center gap-2">
+              <button onClick={() => setShowAddUser(true)} className="btn btn-dark">
                 <Plus className="w-5 h-5" />Add User
               </button>
             </div>
 
             <div className="card overflow-hidden">
               <table className="w-full">
-                <thead className="bg-gray-50">
+                <thead className="bg-cream-soft border-b border-line">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Branch</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    <Th>User</Th>
+                    <Th>Role</Th>
+                    <Th>Branch</Th>
+                    <Th>Status</Th>
+                    <Th className="text-right">Actions</Th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {mockUsers.map(u => (
-                    <tr key={u.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                            <span className="text-sm font-medium text-blue-600">{u.username.charAt(0).toUpperCase()}</span>
-                          </div>
+                <tbody className="divide-y divide-cream-deep/70">
+                  {mockUsers.map((u) => (
+                    <tr key={u.id} className="hover:bg-cream-soft">
+                      <Td>
+                        <div className="flex items-center gap-2.5">
+                          <Avatar name={u.username} tone={roleTones[u.role] || 'lime'} size="sm" />
                           <div>
-                            <p className="font-medium">{u.username}</p>
-                            <p className="text-sm text-gray-500">{u.email}</p>
+                            <p className="font-bold text-ink capitalize">{u.username}</p>
+                            <p className="text-xs text-stone-400">{u.email}</p>
                           </div>
                         </div>
-                      </td>
-                      <td className="px-4 py-3"><span className="text-xs font-medium px-2 py-1 rounded-full bg-blue-100 text-blue-700 capitalize">{u.role}</span></td>
-                      <td className="px-4 py-3 text-gray-500">{u.branch}</td>
-                      <td className="px-4 py-3"><span className="text-xs font-medium px-2 py-1 rounded-full bg-green-100 text-green-700">Active</span></td>
-                      <td className="px-4 py-3">
+                      </Td>
+                      <Td><Chip tone={roleTones[u.role] || 'neutral'}>{u.role}</Chip></Td>
+                      <Td className="text-stone-500">{u.branch}</Td>
+                      <Td><Chip tone="mint">Active</Chip></Td>
+                      <Td>
                         <div className="flex items-center justify-end gap-1">
-                          <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"><Key className="w-4 h-4" /></button>
-                          <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"><Edit className="w-4 h-4" /></button>
-                          <button className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4" /></button>
+                          <button className="p-2 text-stone-400 hover:text-ink hover:bg-lime-soft rounded-full"><Key className="w-4 h-4" /></button>
+                          <button className="p-2 text-stone-400 hover:text-ink hover:bg-cream-deep rounded-full"><Edit className="w-4 h-4" /></button>
+                          <button className="p-2 text-stone-400 hover:text-[#a34141] hover:bg-blush-soft rounded-full"><Trash2 className="w-4 h-4" /></button>
                         </div>
-                      </td>
+                      </Td>
                     </tr>
                   ))}
                 </tbody>
@@ -101,89 +105,91 @@ const SettingsPage: React.FC = () => {
         )}
 
         {activeTab === 'roles' && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {rolePermissions.map(role => (
-                <div key={role.role} className="card p-5">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-                        <Shield className="w-5 h-5 text-blue-600" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900 capitalize">{role.label}</h3>
-                      </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {rolePermissions.map((role) => (
+              <div key={role.role} className="card p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${
+                      role.role === 'admin' ? 'bg-lime-soft text-[#5c6b12]' :
+                      role.role === 'pharmacist' ? 'bg-sky-soft text-[#3d5a94]' :
+                      role.role === 'cashier' ? 'bg-sun-soft text-[#8a6d10]' :
+                      role.role === 'inventory' ? 'bg-lav-soft text-[#5d4394]' :
+                      'bg-mint-soft text-[#2f6b46]'
+                    }`}>
+                      <Shield className="w-5 h-5" />
                     </div>
-                    <button onClick={() => setEditingRole(role.role)} className="text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1">
-                      <Edit className="w-4 h-4" />Edit
-                    </button>
+                    <h3 className="font-extrabold tracking-tight text-ink">{role.label}</h3>
                   </div>
-                  <p className="text-sm text-gray-500 mb-4">{role.description}</p>
-                  <div>
-                    <p className="text-xs font-medium text-gray-500 mb-2">Access:</p>
-                    <div className="flex flex-wrap gap-1">
-                      {role.menuItems.map(item => (
-                        <span key={item} className="text-xs bg-gray-100 px-2 py-1 rounded capitalize">{item}</span>
-                      ))}
-                    </div>
-                  </div>
+                  <button onClick={() => setEditingRole(role.role)} className="text-sm font-bold text-ink underline decoration-lime decoration-2 underline-offset-4 flex items-center gap-1">
+                    <Edit className="w-3.5 h-3.5" />Edit
+                  </button>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {showAddUser && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
-              <div className="p-4 border-b"><h2 className="font-semibold">Add User</h2></div>
-              <div className="p-4 space-y-3">
-                <input type="text" placeholder="Username" className="w-full px-3 py-2.5 border border-gray-200 rounded-xl" />
-                <input type="email" placeholder="Email" className="w-full px-3 py-2.5 border border-gray-200 rounded-xl" />
-                <input type="password" placeholder="Password" className="w-full px-3 py-2.5 border border-gray-200 rounded-xl" />
-                <select className="w-full px-3 py-2.5 border border-gray-200 rounded-xl">
-                  <option value="">Select Role</option>
-                  {rolePermissions.map(r => <option key={r.role} value={r.role}>{r.label}</option>)}
-                </select>
-                <select className="w-full px-3 py-2.5 border border-gray-200 rounded-xl">
-                  <option value="">Select Branch</option>
-                  <option>Main Branch</option>
-                  <option>All Branches</option>
-                </select>
-              </div>
-              <div className="p-4 border-t flex gap-3">
-                <button onClick={() => setShowAddUser(false)} className="flex-1 py-2.5 border border-gray-200 rounded-xl hover:bg-gray-50">Cancel</button>
-                <button onClick={() => setShowAddUser(false)} className="flex-1 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700">Save</button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {editingRole && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full">
-              <div className="p-4 border-b flex items-center justify-between">
-                <h2 className="font-semibold capitalize">Edit {rolePermissions.find(r => r.role === editingRole)?.label} Permissions</h2>
-                <button onClick={() => setEditingRole(null)} className="text-gray-400 hover:text-gray-600"><Trash2 className="w-5 h-5" /></button>
-              </div>
-              <div className="p-4 space-y-3">
-                <p className="text-sm text-gray-600 mb-4">Select which menu items this role can access:</p>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                  {allPermissions.map(perm => (
-                    <label key={perm} className="flex items-center gap-2 p-2 border rounded-lg cursor-pointer hover:bg-gray-50">
-                      <input type="checkbox" defaultChecked={rolePermissions.find(r => r.role === editingRole)?.menuItems.includes(perm)} className="w-4 h-4 rounded text-blue-600" />
-                      <span className="text-sm capitalize">{perm.replace('_', ' ')}</span>
-                    </label>
+                <p className="text-sm text-stone-400 mb-4">{role.description}</p>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-stone-400 mb-2">Access</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {role.menuItems.map((item) => (
+                    <Chip key={item} tone="neutral">{item.replace('_', ' ')}</Chip>
                   ))}
                 </div>
               </div>
-              <div className="p-4 border-t flex gap-3">
-                <button onClick={() => setEditingRole(null)} className="flex-1 py-2.5 border border-gray-200 rounded-xl hover:bg-gray-50">Cancel</button>
-                <button onClick={() => setEditingRole(null)} className="flex-1 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700">Save Changes</button>
-              </div>
-            </div>
+            ))}
           </div>
         )}
+
+        {/* Add user modal */}
+        <Modal
+          open={showAddUser}
+          onClose={() => setShowAddUser(false)}
+          title="Add User"
+          footer={
+            <>
+              <button onClick={() => setShowAddUser(false)} className="btn btn-ghost flex-1">Cancel</button>
+              <button onClick={() => setShowAddUser(false)} className="btn btn-dark flex-1">Save</button>
+            </>
+          }
+        >
+          <input type="text" placeholder="Username" className="input" />
+          <input type="email" placeholder="Email" className="input" />
+          <input type="password" placeholder="Password" className="input" />
+          <select className="input">
+            <option value="">Select Role</option>
+            {rolePermissions.map((r) => <option key={r.role} value={r.role}>{r.label}</option>)}
+          </select>
+          <select className="input">
+            <option value="">Select Branch</option>
+            <option>Main Branch</option>
+            <option>All Branches</option>
+          </select>
+        </Modal>
+
+        {/* Edit role modal */}
+        <Modal
+          open={!!editingRole}
+          onClose={() => setEditingRole(null)}
+          title={`Edit ${rolePermissions.find((r) => r.role === editingRole)?.label} permissions`}
+          maxWidth="max-w-lg"
+          footer={
+            <>
+              <button onClick={() => setEditingRole(null)} className="btn btn-ghost flex-1">Cancel</button>
+              <button onClick={() => setEditingRole(null)} className="btn btn-dark flex-1">Save Changes</button>
+            </>
+          }
+        >
+          <p className="text-sm text-stone-400 -mt-1">Select which menu items this role can access:</p>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+            {allPermissions.map((perm) => (
+              <label key={perm} className="flex items-center gap-2 p-2.5 border border-line rounded-2xl cursor-pointer hover:border-lime hover:bg-lime-soft/30">
+                <input
+                  type="checkbox"
+                  defaultChecked={rolePermissions.find((r) => r.role === editingRole)?.menuItems.includes(perm)}
+                  className="w-4 h-4 rounded accent-[#1d1d18]"
+                />
+                <span className="text-sm font-medium capitalize text-ink">{perm.replace('_', ' ')}</span>
+              </label>
+            ))}
+          </div>
+        </Modal>
       </div>
     </Layout>
   );

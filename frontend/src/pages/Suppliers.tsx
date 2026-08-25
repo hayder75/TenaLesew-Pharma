@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Layout from '../components/Layout';
+import { PageHeader, Tabs, StatCard, Chip, EmptyState, Th, Td, Modal } from '../components/ui';
 import { Search, Plus, Package, Truck, DollarSign, Edit, Trash2, Eye } from 'lucide-react';
 
 interface Supplier {
@@ -36,105 +37,106 @@ const Suppliers: React.FC = () => {
   const [showAddSupplier, setShowAddSupplier] = useState(false);
   const [showAddPurchase, setShowAddPurchase] = useState(false);
 
-  const filteredSuppliers = mockSuppliers.filter(s => s.name.toLowerCase().includes(search.toLowerCase()));
+  const filteredSuppliers = mockSuppliers.filter((s) => s.name.toLowerCase().includes(search.toLowerCase()));
   const totalDebt = mockSuppliers.reduce((sum, s) => sum + s.balance, 0);
 
   return (
     <Layout>
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Suppliers</h1>
-            <p className="text-gray-500 mt-1">Manage suppliers and purchase orders</p>
-          </div>
-          <button onClick={() => activeTab === 'suppliers' ? setShowAddSupplier(true) : setShowAddPurchase(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-medium flex items-center gap-2">
-            <Plus className="w-5 h-5" />
-            {activeTab === 'suppliers' ? 'Add Supplier' : 'New PO'}
-          </button>
-        </div>
+        <PageHeader
+          title="Suppliers"
+          subtitle="Manage suppliers and purchase orders"
+          actions={
+            <button
+              onClick={() => (activeTab === 'suppliers' ? setShowAddSupplier(true) : setShowAddPurchase(true))}
+              className="btn btn-dark"
+            >
+              <Plus className="w-5 h-5" />
+              {activeTab === 'suppliers' ? 'Add Supplier' : 'New PO'}
+            </button>
+          }
+        />
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="card p-4 flex items-center gap-4">
-            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center"><Truck className="w-6 h-6 text-blue-600" /></div>
-            <div><p className="text-sm text-gray-500">Suppliers</p><p className="text-2xl font-bold">{mockSuppliers.length}</p></div>
-          </div>
-          <div className="card p-4 flex items-center gap-4">
-            <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center"><Package className="w-6 h-6 text-yellow-600" /></div>
-            <div><p className="text-sm text-gray-500">Pending</p><p className="text-2xl font-bold text-yellow-600">{mockPurchases.filter(p => p.status === 'pending').length}</p></div>
-          </div>
-          <div className="card p-4 flex items-center gap-4">
-            <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center"><DollarSign className="w-6 h-6 text-red-600" /></div>
-            <div><p className="text-sm text-gray-500">Payable</p><p className="text-2xl font-bold">${totalDebt.toLocaleString()}</p></div>
-          </div>
+          <StatCard label="Suppliers" value={mockSuppliers.length} icon={Truck} tone="sky" />
+          <StatCard label="Pending POs" value={mockPurchases.filter((p) => p.status === 'pending').length} icon={Package} tone="sun" />
+          <StatCard label="Total Payable" value={`$${totalDebt.toLocaleString()}`} icon={DollarSign} tone="blush" />
         </div>
 
-        <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
-          <button onClick={() => setActiveTab('suppliers')} className={`px-4 py-2 rounded-lg text-sm font-medium ${activeTab === 'suppliers' ? 'bg-white shadow text-gray-900' : 'text-gray-500'}`}>Suppliers</button>
-          <button onClick={() => setActiveTab('purchases')} className={`px-4 py-2 rounded-lg text-sm font-medium ${activeTab === 'purchases' ? 'bg-white shadow text-gray-900' : 'text-gray-500'}`}>Purchase Orders</button>
-        </div>
+        <Tabs
+          tabs={[
+            { id: 'suppliers', label: 'Suppliers' },
+            { id: 'purchases', label: 'Purchase Orders' },
+          ]}
+          active={activeTab}
+          onChange={(id) => setActiveTab(id as typeof activeTab)}
+        />
 
         <div className="relative">
-          <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input type="text" placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" />
+          <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" />
+          <input type="text" placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} className="input !rounded-full !py-3 !pl-10" />
         </div>
 
         {activeTab === 'suppliers' && (
           <div className="card overflow-hidden">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-cream-soft border-b border-line">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Supplier</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Address</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Balance</th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  <Th>Supplier</Th>
+                  <Th>Phone</Th>
+                  <Th>Email</Th>
+                  <Th>Address</Th>
+                  <Th>Balance</Th>
+                  <Th className="text-right">Actions</Th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
-                {filteredSuppliers.map(supplier => (
-                  <tr key={supplier.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium">{supplier.name}</td>
-                    <td className="px-4 py-3 text-gray-500">{supplier.phone}</td>
-                    <td className="px-4 py-3 text-gray-500">{supplier.email}</td>
-                    <td className="px-4 py-3 text-gray-500">{supplier.address}</td>
-                    <td className="px-4 py-3"><span className={supplier.balance > 0 ? 'text-red-600 font-medium' : 'text-green-600'}>${supplier.balance.toLocaleString()}</span></td>
-                    <td className="px-4 py-3">
+              <tbody className="divide-y divide-cream-deep/70">
+                {filteredSuppliers.map((supplier) => (
+                  <tr key={supplier.id} className="hover:bg-cream-soft">
+                    <Td className="font-bold text-ink">{supplier.name}</Td>
+                    <Td className="text-stone-500">{supplier.phone}</Td>
+                    <Td className="text-stone-500">{supplier.email}</Td>
+                    <Td className="text-stone-500">{supplier.address}</Td>
+                    <Td>{supplier.balance > 0 ? <Chip tone="blush">${supplier.balance.toLocaleString()}</Chip> : <Chip tone="mint">Clear</Chip>}</Td>
+                    <Td>
                       <div className="flex items-center justify-end gap-1">
-                        <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"><Eye className="w-4 h-4" /></button>
-                        <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"><Edit className="w-4 h-4" /></button>
-                        <button className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4" /></button>
+                        <button className="p-2 text-stone-400 hover:text-ink hover:bg-lime-soft rounded-full"><Eye className="w-4 h-4" /></button>
+                        <button className="p-2 text-stone-400 hover:text-ink hover:bg-cream-deep rounded-full"><Edit className="w-4 h-4" /></button>
+                        <button className="p-2 text-stone-400 hover:text-[#a34141] hover:bg-blush-soft rounded-full"><Trash2 className="w-4 h-4" /></button>
                       </div>
-                    </td>
+                    </Td>
                   </tr>
                 ))}
               </tbody>
             </table>
+            {filteredSuppliers.length === 0 && <EmptyState icon={Truck} title="No suppliers found" />}
           </div>
         )}
 
         {activeTab === 'purchases' && (
           <div className="card overflow-hidden">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-cream-soft border-b border-line">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">PO#</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Supplier</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  <Th>PO#</Th>
+                  <Th>Supplier</Th>
+                  <Th>Date</Th>
+                  <Th>Total</Th>
+                  <Th>Status</Th>
+                  <Th className="text-right">Actions</Th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
-                {mockPurchases.map(purchase => (
-                  <tr key={purchase.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium">#{purchase.id}</td>
-                    <td className="px-4 py-3">{purchase.supplier}</td>
-                    <td className="px-4 py-3 text-gray-500">{purchase.date}</td>
-                    <td className="px-4 py-3 font-medium">${purchase.total.toLocaleString()}</td>
-                    <td className="px-4 py-3"><span className={`text-xs font-medium px-2 py-1 rounded-full ${purchase.status === 'received' ? 'bg-green-100 text-green-700' : purchase.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>{purchase.status}</span></td>
-                    <td className="px-4 py-3 text-right"><button className="text-blue-600 hover:underline text-sm">View</button></td>
+              <tbody className="divide-y divide-cream-deep/70">
+                {mockPurchases.map((purchase) => (
+                  <tr key={purchase.id} className="hover:bg-cream-soft">
+                    <Td className="font-bold text-stone-400">#{purchase.id}</Td>
+                    <Td className="font-bold text-ink">{purchase.supplier}</Td>
+                    <Td className="text-stone-500">{purchase.date}</Td>
+                    <Td className="font-bold text-ink">${purchase.total.toLocaleString()}</Td>
+                    <Td><Chip tone={purchase.status === 'received' ? 'mint' : purchase.status === 'pending' ? 'sun' : 'blush'}>{purchase.status}</Chip></Td>
+                    <Td className="text-right">
+                      <button className="font-semibold text-ink underline decoration-lime decoration-2 underline-offset-4 text-sm">View</button>
+                    </Td>
                   </tr>
                 ))}
               </tbody>
@@ -142,39 +144,40 @@ const Suppliers: React.FC = () => {
           </div>
         )}
 
-        {showAddSupplier && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
-              <div className="p-4 border-b"><h2 className="font-semibold">Add Supplier</h2></div>
-              <div className="p-4 space-y-3">
-                <input type="text" placeholder="Name" className="w-full px-3 py-2.5 border border-gray-200 rounded-xl" />
-                <input type="tel" placeholder="Phone" className="w-full px-3 py-2.5 border border-gray-200 rounded-xl" />
-                <input type="email" placeholder="Email" className="w-full px-3 py-2.5 border border-gray-200 rounded-xl" />
-                <input type="text" placeholder="Address" className="w-full px-3 py-2.5 border border-gray-200 rounded-xl" />
-              </div>
-              <div className="p-4 border-t flex gap-3">
-                <button onClick={() => setShowAddSupplier(false)} className="flex-1 py-2.5 border border-gray-200 rounded-xl hover:bg-gray-50">Cancel</button>
-                <button onClick={() => setShowAddSupplier(false)} className="flex-1 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700">Save</button>
-              </div>
-            </div>
-          </div>
-        )}
+        <Modal
+          open={showAddSupplier}
+          onClose={() => setShowAddSupplier(false)}
+          title="Add Supplier"
+          footer={
+            <>
+              <button onClick={() => setShowAddSupplier(false)} className="btn btn-ghost flex-1">Cancel</button>
+              <button onClick={() => setShowAddSupplier(false)} className="btn btn-dark flex-1">Save</button>
+            </>
+          }
+        >
+          <input type="text" placeholder="Name" className="input" />
+          <input type="tel" placeholder="Phone" className="input" />
+          <input type="email" placeholder="Email" className="input" />
+          <input type="text" placeholder="Address" className="input" />
+        </Modal>
 
-        {showAddPurchase && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
-              <div className="p-4 border-b"><h2 className="font-semibold">Create Purchase Order</h2></div>
-              <div className="p-4 space-y-3">
-                <select className="w-full px-3 py-2.5 border border-gray-200 rounded-xl"><option>Select Supplier</option>{mockSuppliers.map(s => <option key={s.id}>{s.name}</option>)}</select>
-                <p className="text-sm text-gray-500">Add products from inventory</p>
-              </div>
-              <div className="p-4 border-t flex gap-3">
-                <button onClick={() => setShowAddPurchase(false)} className="flex-1 py-2.5 border border-gray-200 rounded-xl hover:bg-gray-50">Cancel</button>
-                <button onClick={() => setShowAddPurchase(false)} className="flex-1 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700">Create PO</button>
-              </div>
-            </div>
-          </div>
-        )}
+        <Modal
+          open={showAddPurchase}
+          onClose={() => setShowAddPurchase(false)}
+          title="Create Purchase Order"
+          footer={
+            <>
+              <button onClick={() => setShowAddPurchase(false)} className="btn btn-ghost flex-1">Cancel</button>
+              <button onClick={() => setShowAddPurchase(false)} className="btn btn-dark flex-1">Create PO</button>
+            </>
+          }
+        >
+          <select className="input">
+            <option>Select Supplier</option>
+            {mockSuppliers.map((s) => <option key={s.id}>{s.name}</option>)}
+          </select>
+          <p className="text-sm text-stone-400">Add products from inventory — full PO builder coming with the backend.</p>
+        </Modal>
       </div>
     </Layout>
   );

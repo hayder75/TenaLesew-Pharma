@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Layout from '../components/Layout';
+import { PageHeader, StatCard, Chip, Th, Td, Modal, Avatar } from '../components/ui';
 import { Search, Plus, Users, CreditCard, Trash2, Edit, Eye } from 'lucide-react';
 
 interface Customer {
@@ -24,7 +25,7 @@ const Customers: React.FC = () => {
   const [filterType, setFilterType] = useState<'all' | 'retail' | 'wholesale'>('all');
   const [showAdd, setShowAdd] = useState(false);
 
-  const filteredCustomers = mockCustomers.filter(c => {
+  const filteredCustomers = mockCustomers.filter((c) => {
     const matchesSearch = c.name.toLowerCase().includes(search.toLowerCase()) || c.phone.includes(search);
     const matchesType = filterType === 'all' || c.type === filterType;
     return matchesSearch && matchesType;
@@ -33,42 +34,30 @@ const Customers: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Customers</h1>
-            <p className="text-gray-500 mt-1">Manage retail and wholesale customers</p>
-          </div>
-          <button onClick={() => setShowAdd(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-medium flex items-center gap-2">
-            <Plus className="w-5 h-5" />
-            Add Customer
-          </button>
-        </div>
+        <PageHeader
+          title="Customers"
+          subtitle="Manage retail and wholesale customers"
+          actions={
+            <button onClick={() => setShowAdd(true)} className="btn btn-dark">
+              <Plus className="w-5 h-5" />
+              Add Customer
+            </button>
+          }
+        />
 
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-          <div className="card p-4 flex items-center gap-4">
-            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center"><Users className="w-6 h-6 text-blue-600" /></div>
-            <div><p className="text-sm text-gray-500">Total</p><p className="text-2xl font-bold">{mockCustomers.length}</p></div>
-          </div>
-          <div className="card p-4 flex items-center gap-4">
-            <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center"><Users className="w-6 h-6 text-green-600" /></div>
-            <div><p className="text-sm text-gray-500">Retail</p><p className="text-2xl font-bold text-green-600">{mockCustomers.filter(c => c.type === 'retail').length}</p></div>
-          </div>
-          <div className="card p-4 flex items-center gap-4">
-            <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center"><Users className="w-6 h-6 text-purple-600" /></div>
-            <div><p className="text-sm text-gray-500">Wholesale</p><p className="text-2xl font-bold text-purple-600">{mockCustomers.filter(c => c.type === 'wholesale').length}</p></div>
-          </div>
-          <div className="card p-4 flex items-center gap-4">
-            <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center"><CreditCard className="w-6 h-6 text-red-600" /></div>
-            <div><p className="text-sm text-gray-500">Credit Total</p><p className="text-2xl font-bold">${mockCustomers.reduce((s, c) => s + c.creditBalance, 0).toLocaleString()}</p></div>
-          </div>
+          <StatCard label="Total" value={mockCustomers.length} icon={Users} tone="sky" />
+          <StatCard label="Retail" value={mockCustomers.filter((c) => c.type === 'retail').length} icon={Users} tone="mint" />
+          <StatCard label="Wholesale" value={mockCustomers.filter((c) => c.type === 'wholesale').length} icon={Users} tone="lav" />
+          <StatCard label="Credit Total" value={`$${mockCustomers.reduce((s, c) => s + c.creditBalance, 0).toLocaleString()}`} icon={CreditCard} tone="blush" />
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex-1 relative">
-            <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input type="text" placeholder="Search customers..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" />
+            <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" />
+            <input type="text" placeholder="Search customers..." value={search} onChange={(e) => setSearch(e.target.value)} className="input !rounded-full !pl-10" />
           </div>
-          <select value={filterType} onChange={(e) => setFilterType(e.target.value as typeof filterType)} className="px-4 py-2.5 border border-gray-200 rounded-xl bg-white">
+          <select value={filterType} onChange={(e) => setFilterType(e.target.value as typeof filterType)} className="input sm:w-44">
             <option value="all">All Types</option>
             <option value="retail">Retail</option>
             <option value="wholesale">Wholesale</option>
@@ -77,57 +66,64 @@ const Customers: React.FC = () => {
 
         <div className="card overflow-hidden">
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className="bg-cream-soft border-b border-line">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Purchases</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Credit</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                <Th>Customer</Th>
+                <Th>Phone</Th>
+                <Th>Type</Th>
+                <Th>Total Purchases</Th>
+                <Th>Credit</Th>
+                <Th className="text-right">Actions</Th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
-              {filteredCustomers.map(customer => (
-                <tr key={customer.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3">
-                    <div className="font-medium">{customer.name}</div>
-                    <div className="text-sm text-gray-500">{customer.email}</div>
-                  </td>
-                  <td className="px-4 py-3 text-gray-500">{customer.phone}</td>
-                  <td className="px-4 py-3"><span className={`text-xs font-medium px-2 py-1 rounded-full ${customer.type === 'wholesale' ? 'bg-purple-100 text-purple-700' : 'bg-green-100 text-green-700'}`}>{customer.type}</span></td>
-                  <td className="px-4 py-3 font-medium">${customer.totalPurchases.toLocaleString()}</td>
-                  <td className="px-4 py-3"><span className={customer.creditBalance > 0 ? 'text-red-600 font-medium' : 'text-green-600'}>${customer.creditBalance.toLocaleString()}</span></td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-end gap-1">
-                      <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"><Eye className="w-4 h-4" /></button>
-                      <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"><Edit className="w-4 h-4" /></button>
-                      <button className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4" /></button>
+            <tbody className="divide-y divide-cream-deep/70">
+              {filteredCustomers.map((customer) => (
+                <tr key={customer.id} className="hover:bg-cream-soft">
+                  <Td>
+                    <div className="flex items-center gap-2.5">
+                      <Avatar name={customer.name} tone={customer.type === 'wholesale' ? 'lav' : 'lime'} size="sm" />
+                      <div>
+                        <div className="font-bold text-ink">{customer.name}</div>
+                        <div className="text-xs text-stone-400">{customer.email}</div>
+                      </div>
                     </div>
-                  </td>
+                  </Td>
+                  <Td className="text-stone-500">{customer.phone}</Td>
+                  <Td><Chip tone={customer.type === 'wholesale' ? 'lav' : 'mint'}>{customer.type}</Chip></Td>
+                  <Td className="font-bold text-ink">${customer.totalPurchases.toLocaleString()}</Td>
+                  <Td>{customer.creditBalance > 0 ? <Chip tone="blush">${customer.creditBalance.toLocaleString()}</Chip> : <Chip tone="mint">Clear</Chip>}</Td>
+                  <Td>
+                    <div className="flex items-center justify-end gap-1">
+                      <button className="p-2 text-stone-400 hover:text-ink hover:bg-lime-soft rounded-full"><Eye className="w-4 h-4" /></button>
+                      <button className="p-2 text-stone-400 hover:text-ink hover:bg-cream-deep rounded-full"><Edit className="w-4 h-4" /></button>
+                      <button className="p-2 text-stone-400 hover:text-[#a34141] hover:bg-blush-soft rounded-full"><Trash2 className="w-4 h-4" /></button>
+                    </div>
+                  </Td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
 
-        {showAdd && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
-              <div className="p-4 border-b"><h2 className="font-semibold">Add Customer</h2></div>
-              <div className="p-4 space-y-3">
-                <input type="text" placeholder="Name" className="w-full px-3 py-2.5 border border-gray-200 rounded-xl" />
-                <input type="tel" placeholder="Phone" className="w-full px-3 py-2.5 border border-gray-200 rounded-xl" />
-                <input type="email" placeholder="Email" className="w-full px-3 py-2.5 border border-gray-200 rounded-xl" />
-                <select className="w-full px-3 py-2.5 border border-gray-200 rounded-xl"><option value="retail">Retail</option><option value="wholesale">Wholesale</option></select>
-              </div>
-              <div className="p-4 border-t flex gap-3">
-                <button onClick={() => setShowAdd(false)} className="flex-1 py-2.5 border border-gray-200 rounded-xl hover:bg-gray-50">Cancel</button>
-                <button onClick={() => setShowAdd(false)} className="flex-1 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700">Save</button>
-              </div>
-            </div>
-          </div>
-        )}
+        <Modal
+          open={showAdd}
+          onClose={() => setShowAdd(false)}
+          title="Add Customer"
+          footer={
+            <>
+              <button onClick={() => setShowAdd(false)} className="btn btn-ghost flex-1">Cancel</button>
+              <button onClick={() => setShowAdd(false)} className="btn btn-dark flex-1">Save</button>
+            </>
+          }
+        >
+          <input type="text" placeholder="Name" className="input" />
+          <input type="tel" placeholder="Phone" className="input" />
+          <input type="email" placeholder="Email" className="input" />
+          <select className="input">
+            <option value="retail">Retail</option>
+            <option value="wholesale">Wholesale</option>
+          </select>
+        </Modal>
       </div>
     </Layout>
   );

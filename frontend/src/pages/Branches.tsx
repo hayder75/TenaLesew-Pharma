@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Layout from '../components/Layout';
 import { useAuth } from '../lib/AuthContext';
+import { PageHeader, Chip, Modal, Avatar } from '../components/ui';
 import { Building, Plus, MapPin, Phone, Edit, Trash2, Eye, Lock, Users, DollarSign, ShoppingCart } from 'lucide-react';
 
 interface Branch {
@@ -30,12 +31,12 @@ const Branches: React.FC = () => {
     return (
       <Layout>
         <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Lock className="w-8 h-8 text-gray-400" />
+          <div className="card-dark p-10 text-center max-w-sm">
+            <div className="w-16 h-16 bg-lime rounded-3xl flex items-center justify-center mx-auto mb-4">
+              <Lock className="w-7 h-7 text-ink" />
             </div>
-            <h2 className="text-xl font-semibold text-gray-900">Access Denied</h2>
-            <p className="text-gray-500 mt-2">Only admins can manage branches.</p>
+            <h2 className="text-xl font-extrabold text-white tracking-tight">Access Denied</h2>
+            <p className="text-white/50 mt-2 text-sm">Only admins can manage branches.</p>
           </div>
         </div>
       </Layout>
@@ -45,157 +46,153 @@ const Branches: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Branches</h1>
-            <p className="text-gray-500 mt-1">Manage your pharmacy branches</p>
-          </div>
-          <button onClick={() => setShowAdd(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-medium flex items-center gap-2">
-            <Plus className="w-5 h-5" />
-            Add Branch
-          </button>
-        </div>
+        <PageHeader
+          title="Branches"
+          subtitle="Manage your pharmacy branches"
+          actions={
+            <button onClick={() => setShowAdd(true)} className="btn btn-dark">
+              <Plus className="w-5 h-5" />
+              Add Branch
+            </button>
+          }
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {mockBranches.map(branch => (
+          {mockBranches.map((branch, i) => (
             <div key={branch.id} className="card p-5">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                    <Building className="w-6 h-6 text-blue-600" />
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${i % 2 === 0 ? 'bg-lime-soft text-[#5c6b12]' : 'bg-sky-soft text-[#3d5a94]'}`}>
+                    <Building className="w-6 h-6" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">{branch.name}</h3>
-                    <span className={`text-xs px-2 py-1 rounded-full ${branch.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>{branch.status}</span>
+                    <h3 className="font-extrabold tracking-tight text-ink">{branch.name}</h3>
+                    <Chip tone={branch.status === 'active' ? 'mint' : 'neutral'} className="mt-1">{branch.status}</Chip>
                   </div>
                 </div>
               </div>
-              <div className="space-y-2 text-sm text-gray-600 mb-4">
-                <div className="flex items-center gap-2"><MapPin className="w-4 h-4 text-gray-400" /><span>{branch.address}</span></div>
-                <div className="flex items-center gap-2"><Phone className="w-4 h-4 text-gray-400" /><span>{branch.phone}</span></div>
-                <div className="flex items-center gap-2"><span className="text-gray-400">Manager:</span><span className="font-medium">{branch.manager}</span></div>
+              <div className="space-y-2 text-sm text-stone-500 mb-4">
+                <div className="flex items-center gap-2"><MapPin className="w-4 h-4 text-stone-400" /><span>{branch.address}</span></div>
+                <div className="flex items-center gap-2"><Phone className="w-4 h-4 text-stone-400" /><span>{branch.phone}</span></div>
+                <div className="flex items-center gap-2"><span className="text-stone-400">Manager:</span><span className="font-bold text-ink">{branch.manager}</span></div>
               </div>
-              <div className="grid grid-cols-3 gap-2 py-3 border-t">
+              <div className="grid grid-cols-3 gap-2 py-3 border-t border-line">
                 <div className="text-center">
-                  <div className="flex items-center justify-center gap-1 text-blue-600"><Users className="w-4 h-4" /></div>
-                  <p className="font-semibold text-gray-900">{branch.users}</p>
-                  <p className="text-xs text-gray-500">Users</p>
+                  <div className="flex items-center justify-center gap-1 text-[#3d5a94]"><Users className="w-4 h-4" /></div>
+                  <p className="font-extrabold text-ink">{branch.users}</p>
+                  <p className="text-[11px] text-stone-400 font-semibold">Users</p>
                 </div>
-                <div className="text-center border-l">
-                  <div className="flex items-center justify-center gap-1 text-green-600"><ShoppingCart className="w-4 h-4" /></div>
-                  <p className="font-semibold text-gray-900">{branch.transactions}</p>
-                  <p className="text-xs text-gray-500">Orders</p>
+                <div className="text-center border-l border-line">
+                  <div className="flex items-center justify-center gap-1 text-[#2f6b46]"><ShoppingCart className="w-4 h-4" /></div>
+                  <p className="font-extrabold text-ink">{branch.transactions}</p>
+                  <p className="text-[11px] text-stone-400 font-semibold">Orders</p>
                 </div>
-                <div className="text-center border-l">
-                  <div className="flex items-center justify-center gap-1 text-orange-600"><DollarSign className="w-4 h-4" /></div>
-                  <p className="font-semibold text-gray-900">{(branch.todaySales / 1000).toFixed(1)}k</p>
-                  <p className="text-xs text-gray-500">Sales</p>
+                <div className="text-center border-l border-line">
+                  <div className="flex items-center justify-center gap-1 text-[#8a6d10]"><DollarSign className="w-4 h-4" /></div>
+                  <p className="font-extrabold text-ink">{(branch.todaySales / 1000).toFixed(1)}k</p>
+                  <p className="text-[11px] text-stone-400 font-semibold">Sales</p>
                 </div>
               </div>
-              <div className="flex gap-2 pt-3 border-t">
-                <button onClick={() => setSelectedBranch(branch)} className="flex-1 px-3 py-2 text-sm border rounded-lg hover:bg-gray-50 flex items-center justify-center gap-1"><Eye className="w-4 h-4" />View</button>
-                <button className="px-3 py-2 text-sm border rounded-lg hover:bg-gray-50"><Edit className="w-4 h-4" /></button>
-                <button className="px-3 py-2 text-sm border border-red-200 text-red-600 rounded-lg hover:bg-red-50"><Trash2 className="w-4 h-4" /></button>
+              <div className="flex gap-2 pt-3 border-t border-line">
+                <button onClick={() => setSelectedBranch(branch)} className="btn btn-ghost flex-1 !py-2 !text-xs"><Eye className="w-4 h-4" />View</button>
+                <button className="btn btn-ghost !py-2 !px-3"><Edit className="w-4 h-4" /></button>
+                <button className="btn btn-danger !py-2 !px-3"><Trash2 className="w-4 h-4" /></button>
               </div>
             </div>
           ))}
         </div>
 
-        {selectedBranch && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-4 border-b flex items-center justify-between">
-                <div>
-                  <h2 className="font-semibold text-xl">{selectedBranch.name}</h2>
-                  <p className="text-sm text-gray-500">{selectedBranch.address}</p>
-                </div>
-                <button onClick={() => setSelectedBranch(null)} className="text-gray-400 hover:text-gray-600"><Trash2 className="w-5 h-5" /></button>
-              </div>
-              <div className="p-4 space-y-4">
-                <div className="grid grid-cols-4 gap-4">
-                  <div className="bg-blue-50 p-4 rounded-xl text-center">
-                    <Users className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-                    <p className="text-2xl font-bold text-gray-900">{selectedBranch.users}</p>
-                    <p className="text-sm text-gray-600">Users</p>
-                  </div>
-                  <div className="bg-green-50 p-4 rounded-xl text-center">
-                    <ShoppingCart className="w-6 h-6 text-green-600 mx-auto mb-2" />
-                    <p className="text-2xl font-bold text-gray-900">{selectedBranch.transactions}</p>
-                    <p className="text-sm text-gray-600">Orders</p>
-                  </div>
-                  <div className="bg-orange-50 p-4 rounded-xl text-center">
-                    <DollarSign className="w-6 h-6 text-orange-600 mx-auto mb-2" />
-                    <p className="text-2xl font-bold text-gray-900">{selectedBranch.todaySales.toLocaleString()}</p>
-                    <p className="text-sm text-gray-600">Today Sales (ETB)</p>
-                  </div>
-                  <div className="bg-purple-50 p-4 rounded-xl text-center">
-                    <Building className="w-6 h-6 text-purple-600 mx-auto mb-2" />
-                    <p className="text-2xl font-bold text-gray-900 capitalize">{selectedBranch.status}</p>
-                    <p className="text-sm text-gray-600">Status</p>
-                  </div>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-3">Branch Users</h3>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center"><span className="text-sm font-medium text-blue-600">A</span></div>
-                        <div><p className="font-medium">Admin User</p><p className="text-sm text-gray-500">admin@tenalesew.com</p></div>
-                      </div>
-                      <span className="text-xs bg-blue-100 px-2 py-1 rounded-full">Admin</span>
-                    </div>
-                    <div className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center"><span className="text-sm font-medium text-green-600">M</span></div>
-                        <div><p className="font-medium">{selectedBranch.manager}</p><p className="text-sm text-gray-500">manager@tenalesew.com</p></div>
-                      </div>
-                      <span className="text-xs bg-green-100 px-2 py-1 rounded-full">Manager</span>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-3">Recent Transactions</h3>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between p-3 border rounded-lg">
-                      <div><p className="font-medium">Invoice #10245</p><p className="text-sm text-gray-500">Today, 10:30 AM</p></div>
-                      <p className="font-semibold text-green-600">+2,450 ETB</p>
-                    </div>
-                    <div className="flex items-center justify-between p-3 border rounded-lg">
-                      <div><p className="font-medium">Invoice #10244</p><p className="text-sm text-gray-500">Today, 9:15 AM</p></div>
-                      <p className="font-semibold text-green-600">+850 ETB</p>
-                    </div>
-                    <div className="flex items-center justify-between p-3 border rounded-lg">
-                      <div><p className="font-medium">Invoice #10243</p><p className="text-sm text-gray-500">Yesterday, 5:45 PM</p></div>
-                      <p className="font-semibold text-green-600">+3,200 ETB</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="p-4 border-t flex gap-3">
-                <button onClick={() => setSelectedBranch(null)} className="flex-1 py-2.5 border border-gray-200 rounded-xl hover:bg-gray-50">Close</button>
-                <button className="flex-1 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700">Edit Branch</button>
-              </div>
+        {/* Branch detail modal */}
+        <Modal
+          open={!!selectedBranch}
+          onClose={() => setSelectedBranch(null)}
+          title={selectedBranch?.name || ''}
+          maxWidth="max-w-2xl"
+          footer={
+            <>
+              <button onClick={() => setSelectedBranch(null)} className="btn btn-ghost flex-1">Close</button>
+              <button className="btn btn-dark flex-1">Edit Branch</button>
+            </>
+          }
+        >
+          <p className="text-sm text-stone-400 -mt-2">{selectedBranch?.address}</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="bg-sky-soft p-4 rounded-2xl text-center border border-sky/40">
+              <Users className="w-5 h-5 text-[#3d5a94] mx-auto mb-1.5" />
+              <p className="text-xl font-extrabold text-ink">{selectedBranch?.users}</p>
+              <p className="text-[11px] font-semibold text-stone-400">Users</p>
+            </div>
+            <div className="bg-mint-soft p-4 rounded-2xl text-center border border-mint/40">
+              <ShoppingCart className="w-5 h-5 text-[#2f6b46] mx-auto mb-1.5" />
+              <p className="text-xl font-extrabold text-ink">{selectedBranch?.transactions}</p>
+              <p className="text-[11px] font-semibold text-stone-400">Orders</p>
+            </div>
+            <div className="bg-sun-soft p-4 rounded-2xl text-center border border-sun/40">
+              <DollarSign className="w-5 h-5 text-[#8a6d10] mx-auto mb-1.5" />
+              <p className="text-xl font-extrabold text-ink">{selectedBranch?.todaySales.toLocaleString()}</p>
+              <p className="text-[11px] font-semibold text-stone-400">Today (ETB)</p>
+            </div>
+            <div className="bg-lav-soft p-4 rounded-2xl text-center border border-lav/40">
+              <Building className="w-5 h-5 text-[#5d4394] mx-auto mb-1.5" />
+              <p className="text-xl font-extrabold text-ink capitalize">{selectedBranch?.status}</p>
+              <p className="text-[11px] font-semibold text-stone-400">Status</p>
             </div>
           </div>
-        )}
 
-        {showAdd && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
-              <div className="p-4 border-b"><h2 className="font-semibold">Add Branch</h2></div>
-              <div className="p-4 space-y-3">
-                <input type="text" placeholder="Branch Name" className="w-full px-3 py-2.5 border border-gray-200 rounded-xl" />
-                <input type="text" placeholder="Address" className="w-full px-3 py-2.5 border border-gray-200 rounded-xl" />
-                <input type="tel" placeholder="Phone" className="w-full px-3 py-2.5 border border-gray-200 rounded-xl" />
-                <input type="text" placeholder="Manager Name" className="w-full px-3 py-2.5 border border-gray-200 rounded-xl" />
+          <div className="pt-2">
+            <h3 className="font-extrabold text-sm tracking-tight text-ink mb-2.5">Branch users</h3>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between p-3 border border-line rounded-2xl">
+                <div className="flex items-center gap-3">
+                  <Avatar name="Admin User" tone="lime" size="sm" />
+                  <div><p className="font-bold text-sm text-ink">Admin User</p><p className="text-xs text-stone-400">admin@tenalesew.com</p></div>
+                </div>
+                <Chip tone="sky">Admin</Chip>
               </div>
-              <div className="p-4 border-t flex gap-3">
-                <button onClick={() => setShowAdd(false)} className="flex-1 py-2.5 border border-gray-200 rounded-xl hover:bg-gray-50">Cancel</button>
-                <button onClick={() => setShowAdd(false)} className="flex-1 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700">Save</button>
+              <div className="flex items-center justify-between p-3 border border-line rounded-2xl">
+                <div className="flex items-center gap-3">
+                  <Avatar name={selectedBranch?.manager || 'M'} tone="mint" size="sm" />
+                  <div><p className="font-bold text-sm text-ink">{selectedBranch?.manager}</p><p className="text-xs text-stone-400">manager@tenalesew.com</p></div>
+                </div>
+                <Chip tone="mint">Manager</Chip>
               </div>
             </div>
           </div>
-        )}
+
+          <div className="pt-2">
+            <h3 className="font-extrabold text-sm tracking-tight text-ink mb-2.5">Recent transactions</h3>
+            <div className="space-y-2">
+              {[
+                { id: 10245, time: 'Today, 10:30 AM', amount: '+2,450 ETB' },
+                { id: 10244, time: 'Today, 9:15 AM', amount: '+850 ETB' },
+                { id: 10243, time: 'Yesterday, 5:45 PM', amount: '+3,200 ETB' },
+              ].map((tx) => (
+                <div key={tx.id} className="flex items-center justify-between p-3 border border-line rounded-2xl">
+                  <div><p className="font-bold text-sm text-ink">Invoice #{tx.id}</p><p className="text-xs text-stone-400">{tx.time}</p></div>
+                  <p className="font-extrabold text-[#2f6b46]">{tx.amount}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Modal>
+
+        {/* Add branch modal */}
+        <Modal
+          open={showAdd}
+          onClose={() => setShowAdd(false)}
+          title="Add Branch"
+          footer={
+            <>
+              <button onClick={() => setShowAdd(false)} className="btn btn-ghost flex-1">Cancel</button>
+              <button onClick={() => setShowAdd(false)} className="btn btn-dark flex-1">Save</button>
+            </>
+          }
+        >
+          <input type="text" placeholder="Branch Name" className="input" />
+          <input type="text" placeholder="Address" className="input" />
+          <input type="tel" placeholder="Phone" className="input" />
+          <input type="text" placeholder="Manager Name" className="input" />
+        </Modal>
       </div>
     </Layout>
   );

@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import Layout from '../components/Layout';
 import { mockProducts, type Product } from '../lib/mockData';
-import { 
-  Search, 
-  Plus, 
-  Minus, 
-  Trash2, 
-  ShoppingCart,  
-  Printer, 
+import { Chip, EmptyState } from '../components/ui';
+import {
+  Search,
+  Plus,
+  Minus,
+  Trash2,
+  ShoppingCart,
+  Printer,
   Camera,
   Check,
   ArrowRight,
@@ -51,30 +52,28 @@ const POS: React.FC = () => {
   const [showReceipt, setShowReceipt] = useState(false);
   const [lastSale, setLastSale] = useState<{ items: CartItem[]; total: number; date: string; paymentMethod: string; change: number } | null>(null);
 
-  const filteredProducts = mockProducts.filter(p =>
-    (p.name.toLowerCase().includes(search.toLowerCase()) || p.barcode?.includes(search)) && p.stock > 0
+  const filteredProducts = mockProducts.filter(
+    (p) => (p.name.toLowerCase().includes(search.toLowerCase()) || p.barcode?.includes(search)) && p.stock > 0
   );
 
   const addToCart = (product: Product) => {
-    const existing = cart.find(item => item.product.id === product.id);
+    const existing = cart.find((item) => item.product.id === product.id);
     if (existing) {
       if (existing.quantity < product.stock) {
-        setCart(cart.map(item =>
-          item.product.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-        ));
+        setCart(cart.map((item) => (item.product.id === product.id ? { ...item, quantity: item.quantity + 1 } : item)));
       }
     } else {
       setCart([...cart, { product, quantity: 1 }]);
     }
   };
 
-  const removeFromCart = (productId: number) => setCart(cart.filter(item => item.product.id !== productId));
+  const removeFromCart = (productId: number) => setCart(cart.filter((item) => item.product.id !== productId));
 
   const updateQuantity = (productId: number, quantity: number) => {
-    const item = cart.find(i => i.product.id === productId);
+    const item = cart.find((i) => i.product.id === productId);
     if (quantity <= 0) removeFromCart(productId);
     else if (item && quantity <= item.product.stock) {
-      setCart(cart.map(item => item.product.id === productId ? { ...item, quantity } : item));
+      setCart(cart.map((item) => (item.product.id === productId ? { ...item, quantity } : item)));
     }
   };
 
@@ -84,7 +83,7 @@ const POS: React.FC = () => {
   const paidAmount = parseFloat(amountPaid) || 0;
   const change = paidAmount - total;
 
-  const paymentDisplay = selectedPayment === 'other' ? otherPayment : ethiopianBanks.find(b => b.id === selectedPayment)?.label || 'Cash';
+  const paymentDisplay = selectedPayment === 'other' ? otherPayment : ethiopianBanks.find((b) => b.id === selectedPayment)?.label || 'Cash';
 
   const handleCheckout = () => {
     if (selectedPayment !== 'cash' || change >= 0) {
@@ -93,7 +92,7 @@ const POS: React.FC = () => {
         total,
         date: new Date().toLocaleString(),
         paymentMethod: paymentDisplay,
-        change: selectedPayment === 'cash' ? change : 0
+        change: selectedPayment === 'cash' ? change : 0,
       };
       setLastSale(sale);
       setShowBilling(false);
@@ -114,81 +113,94 @@ const POS: React.FC = () => {
     setSelectedPayment('cash');
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
+  const handlePrint = () => window.print();
 
   return (
     <Layout>
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">Point of Sale</h1>
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <span>Branch:</span>
-            <span className="font-medium text-gray-900">Main Branch</span>
-          </div>
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <h1 className="text-[26px] font-extrabold tracking-tight text-ink">Point of Sale</h1>
+          <Chip tone="lime">Main Branch</Chip>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 space-y-4">
-            <div className="card p-4">
-              <h3 className="font-medium text-gray-900 mb-3">Customer Info (Optional)</h3>
+            {/* Customer info */}
+            <div className="card p-5">
+              <h3 className="font-extrabold text-sm tracking-tight text-ink mb-3">Customer info <span className="font-medium text-stone-400">(optional)</span></h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <input type="text" placeholder="Customer Name" value={customerName} onChange={(e) => setCustomerName(e.target.value)} className="px-3 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" />
-                <input type="tel" placeholder="Phone Number" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} className="px-3 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" />
+                <input type="text" placeholder="Customer name" value={customerName} onChange={(e) => setCustomerName(e.target.value)} className="input" />
+                <input type="tel" placeholder="Phone number" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} className="input" />
               </div>
-              <div className="mt-3">
-                <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-600 hover:text-gray-900">
-                  <Camera className="w-4 h-4" /><span>Upload Prescription</span>
+              <div className="mt-3 flex items-center gap-3">
+                <label className="inline-flex items-center gap-2 cursor-pointer text-sm font-semibold text-ink bg-cream-soft hover:bg-lime-soft border border-line rounded-full px-4 py-2 transition-all">
+                  <Camera className="w-4 h-4" />
+                  <span>Upload Prescription</span>
                   <input type="file" accept="image/*,application/pdf" onChange={(e) => setPrescriptionFile(e.target.files?.[0] || null)} className="hidden" />
                 </label>
-                {prescriptionFile && <span className="text-sm text-green-600 ml-6">{prescriptionFile.name}</span>}
+                {prescriptionFile && <Chip tone="mint">{prescriptionFile.name}</Chip>}
               </div>
             </div>
 
+            {/* Search */}
             <div className="relative">
-              <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input type="text" placeholder="Search by name or barcode..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" />
+              <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" />
+              <input type="text" placeholder="Search by name or barcode..." value={search} onChange={(e) => setSearch(e.target.value)} className="input !rounded-full !py-3 !pl-11" />
             </div>
 
+            {/* Product grid */}
             <div className="card p-4">
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-                {filteredProducts.map(product => (
-                  <button key={product.id} onClick={() => addToCart(product)} disabled={product.stock === 0} className="p-2 border border-gray-100 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all text-left disabled:opacity-50">
-                    <p className="font-medium text-xs text-gray-900 truncate">{product.name}</p>
-                    <p className="text-sm font-bold text-blue-600">${product.price.toFixed(2)}</p>
-                    <p className={`text-xs ${product.stock < 10 ? 'text-red-500' : 'text-gray-400'}`}>Stock: {product.stock}</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
+                {filteredProducts.map((product) => (
+                  <button
+                    key={product.id}
+                    onClick={() => addToCart(product)}
+                    disabled={product.stock === 0}
+                    className="p-3 bg-white border border-line rounded-2xl hover:border-lime hover:bg-lime-soft/40 hover:shadow-card transition-all text-left group disabled:opacity-40"
+                  >
+                    <p className="font-bold text-xs text-ink truncate">{product.name}</p>
+                    <p className="text-[15px] font-extrabold text-ink mt-1">${product.price.toFixed(2)}</p>
+                    <p className={`text-[11px] font-semibold mt-0.5 ${product.stock < 10 ? 'text-[#a34141]' : 'text-stone-400'}`}>
+                      Stock: {product.stock}
+                    </p>
+                    <div className="mt-2 w-6 h-6 rounded-full bg-lime-soft text-[#5c6b12] flex items-center justify-center group-hover:bg-lime group-hover:text-ink transition-all">
+                      <Plus className="w-3.5 h-3.5" />
+                    </div>
                   </button>
                 ))}
               </div>
-              {filteredProducts.length === 0 && (
-                <div className="text-center py-8 text-gray-400"><ShoppingCart className="w-10 h-10 mx-auto mb-2" /><p>No products found</p></div>
-              )}
+              {filteredProducts.length === 0 && <EmptyState icon={ShoppingCart} title="No products found" sub="Try a different search" />}
             </div>
           </div>
 
-          <div className="card h-fit sticky top-4">
-            <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-              <h2 className="font-semibold text-gray-900 flex items-center gap-2"><ShoppingCart className="w-5 h-5" /> Cart ({cart.length})</h2>
-              {cart.length > 0 && <button onClick={() => setCart([])} className="text-xs text-red-500">Clear</button>}
+          {/* Cart */}
+          <div className="card h-fit sticky top-4 overflow-hidden">
+            <div className="p-4 border-b border-line flex items-center justify-between bg-cream-soft">
+              <h2 className="font-extrabold tracking-tight text-ink flex items-center gap-2">
+                <span className="w-7 h-7 bg-ink rounded-full flex items-center justify-center"><ShoppingCart className="w-3.5 h-3.5 text-lime" /></span>
+                Cart ({cart.length})
+              </h2>
+              {cart.length > 0 && (
+                <button onClick={() => setCart([])} className="text-xs font-bold text-[#a34141] bg-blush-soft px-3 py-1 rounded-full">Clear</button>
+              )}
             </div>
 
             <div className="p-4 max-h-80 overflow-y-auto">
               {cart.length === 0 ? (
-                <div className="text-center py-8 text-gray-400"><ShoppingCart className="w-10 h-10 mx-auto mb-2" /><p className="text-sm">Cart is empty</p></div>
+                <EmptyState icon={ShoppingCart} title="Cart is empty" sub="Tap products to add them" />
               ) : (
                 <div className="space-y-2">
-                  {cart.map(item => (
-                    <div key={item.product.id} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                  {cart.map((item) => (
+                    <div key={item.product.id} className="flex items-center gap-2 p-2.5 bg-cream-soft rounded-2xl border border-line">
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm text-gray-900 truncate">{item.product.name}</p>
-                        <p className="text-xs text-gray-500">${item.product.price.toFixed(2)}</p>
+                        <p className="font-bold text-xs text-ink truncate">{item.product.name}</p>
+                        <p className="text-[11px] text-stone-400">${item.product.price.toFixed(2)}</p>
                       </div>
                       <div className="flex items-center gap-1">
-                        <button onClick={() => updateQuantity(item.product.id, item.quantity - 1)} className="w-6 h-6 bg-white border rounded flex items-center justify-center"><Minus className="w-3 h-3" /></button>
-                        <span className="w-8 text-center text-sm">{item.quantity}</span>
-                        <button onClick={() => updateQuantity(item.product.id, item.quantity + 1)} className="w-6 h-6 bg-white border rounded flex items-center justify-center"><Plus className="w-3 h-3" /></button>
-                        <button onClick={() => removeFromCart(item.product.id)} className="w-6 h-6 bg-red-50 text-red-500 rounded flex items-center justify-center ml-1"><Trash2 className="w-3 h-3" /></button>
+                        <button onClick={() => updateQuantity(item.product.id, item.quantity - 1)} className="w-6 h-6 bg-white border border-line rounded-full flex items-center justify-center hover:border-lime"><Minus className="w-3 h-3" /></button>
+                        <span className="w-7 text-center text-sm font-bold">{item.quantity}</span>
+                        <button onClick={() => updateQuantity(item.product.id, item.quantity + 1)} className="w-6 h-6 bg-white border border-line rounded-full flex items-center justify-center hover:border-lime"><Plus className="w-3 h-3" /></button>
+                        <button onClick={() => removeFromCart(item.product.id)} className="w-6 h-6 bg-blush-soft text-[#a34141] rounded-full flex items-center justify-center ml-1"><Trash2 className="w-3 h-3" /></button>
                       </div>
                     </div>
                   ))}
@@ -197,14 +209,17 @@ const POS: React.FC = () => {
             </div>
 
             {cart.length > 0 && (
-              <div className="p-4 border-t border-gray-100 space-y-3">
-                <div><label className="text-xs text-gray-500">Discount %</label><input type="number" min="0" max="100" value={discount} onChange={(e) => setDiscount(Math.min(100, Math.max(0, parseInt(e.target.value) || 0)))} className="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-sm" /></div>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between"><span className="text-gray-500">Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
-                  {discount > 0 && <div className="flex justify-between text-green-600"><span>Discount ({discount}%)</span><span>-${discountAmount.toFixed(2)}</span></div>}
-                  <div className="flex justify-between text-lg font-bold"><span>Total</span><span>${total.toFixed(2)}</span></div>
+              <div className="p-4 border-t border-line space-y-3 bg-cream-soft">
+                <div>
+                  <label className="text-xs font-bold uppercase tracking-wider text-stone-400">Discount %</label>
+                  <input type="number" min="0" max="100" value={discount} onChange={(e) => setDiscount(Math.min(100, Math.max(0, parseInt(e.target.value) || 0)))} className="input mt-1" />
                 </div>
-                <button onClick={() => { setAmountPaid(total.toString()); setShowBilling(true); }} className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2">
+                <div className="space-y-1.5 text-sm">
+                  <div className="flex justify-between text-stone-500"><span>Subtotal</span><span className="font-semibold text-ink">${subtotal.toFixed(2)}</span></div>
+                  {discount > 0 && <div className="flex justify-between text-[#2f6b46] font-semibold"><span>Discount ({discount}%)</span><span>-${discountAmount.toFixed(2)}</span></div>}
+                  <div className="flex justify-between text-lg font-extrabold text-ink pt-1"><span>Total</span><span>${total.toFixed(2)}</span></div>
+                </div>
+                <button onClick={() => { setAmountPaid(total.toString()); setShowBilling(true); }} className="btn btn-dark w-full !py-3.5">
                   Proceed to Billing <ArrowRight className="w-5 h-5" />
                 </button>
               </div>
@@ -212,64 +227,65 @@ const POS: React.FC = () => {
           </div>
         </div>
 
+        {/* Billing modal */}
         {showBilling && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden max-h-[90vh] overflow-y-auto">
-              <div className="p-4 border-b flex items-center justify-between sticky top-0 bg-white">
-                <h2 className="font-semibold text-lg">Payment</h2>
-                <button onClick={() => setShowBilling(false)} className="p-1 hover:bg-gray-100 rounded"><X className="w-5 h-5" /></button>
+          <div className="fixed inset-0 bg-ink/40 backdrop-blur-[2px] flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-3xl shadow-pop max-w-lg w-full overflow-hidden max-h-[92vh] overflow-y-auto">
+              <div className="p-4 border-b border-line flex items-center justify-between sticky top-0 bg-white z-10">
+                <h2 className="font-extrabold tracking-tight text-ink">Payment</h2>
+                <button onClick={() => setShowBilling(false)} className="p-1.5 hover:bg-cream rounded-full text-stone-400"><X className="w-5 h-5" /></button>
               </div>
-              
-              <div className="p-4 space-y-4">
-                <div className="text-center p-4 bg-gray-50 rounded-xl">
-                  <p className="text-sm text-gray-500">Total Amount</p>
-                  <p className="text-3xl font-bold text-gray-900">${total.toFixed(2)}</p>
+
+              <div className="p-5 space-y-4">
+                <div className="text-center p-5 bg-cream-soft border border-line rounded-3xl">
+                  <p className="text-xs font-bold uppercase tracking-wider text-stone-400">Total amount</p>
+                  <p className="text-[34px] font-extrabold tracking-tight text-ink">${total.toFixed(2)}</p>
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">Payment Method</label>
-                  <select value={selectedPayment} onChange={(e) => setSelectedPayment(e.target.value)} className="w-full px-4 py-3 border border-gray-200 rounded-xl">
-                    <optgroup label="💵 Cash">
+                  <label className="text-xs font-bold uppercase tracking-wider text-stone-400 mb-1.5 block">Payment method</label>
+                  <select value={selectedPayment} onChange={(e) => setSelectedPayment(e.target.value)} className="input">
+                    <optgroup label="Cash">
                       <option value="cash">Cash (Drawer)</option>
                     </optgroup>
-                    <optgroup label="🏦 Banks">
-                      {ethiopianBanks.filter(b => b.type === 'bank').map(bank => (
+                    <optgroup label="Banks">
+                      {ethiopianBanks.filter((b) => b.type === 'bank').map((bank) => (
                         <option key={bank.id} value={bank.id}>{bank.label}</option>
                       ))}
                     </optgroup>
-                    <optgroup label="📱 Mobile Wallets">
-                      {ethiopianBanks.filter(b => b.type === 'wallet').map(bank => (
+                    <optgroup label="Mobile Wallets">
+                      {ethiopianBanks.filter((b) => b.type === 'wallet').map((bank) => (
                         <option key={bank.id} value={bank.id}>{bank.label}</option>
                       ))}
                     </optgroup>
-                    <optgroup label="📝 Other">
+                    <optgroup label="Other">
                       <option value="other">Other (Specify)</option>
                     </optgroup>
                   </select>
                 </div>
 
                 {selectedPayment === 'other' && (
-                  <input type="text" value={otherPayment} onChange={(e) => setOtherPayment(e.target.value)} placeholder="Enter bank/wallet name" className="w-full px-4 py-3 border border-gray-200 rounded-xl" />
+                  <input type="text" value={otherPayment} onChange={(e) => setOtherPayment(e.target.value)} placeholder="Enter bank/wallet name" className="input" />
                 )}
 
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">Amount Received</label>
-                  <input type="number" value={amountPaid} onChange={(e) => setAmountPaid(e.target.value)} className="w-full px-4 py-3 border border-gray-200 rounded-xl text-lg font-bold text-center" placeholder="0.00" />
+                  <label className="text-xs font-bold uppercase tracking-wider text-stone-400 mb-1.5 block">Amount received</label>
+                  <input type="number" value={amountPaid} onChange={(e) => setAmountPaid(e.target.value)} className="input !text-xl !font-extrabold text-center" placeholder="0.00" />
                 </div>
 
-                <div className="flex justify-between text-lg">
-                  <span className="text-gray-500">Change</span>
-                  <span className={`font-bold ${change >= 0 ? 'text-green-600' : 'text-red-600'}`}>${change.toFixed(2)}</span>
+                <div className="flex justify-between items-center text-lg">
+                  <span className="text-stone-500 text-sm font-semibold">Change</span>
+                  <span className={`font-extrabold ${change >= 0 ? 'text-[#2f6b46]' : 'text-[#a34141]'}`}>${change.toFixed(2)}</span>
                 </div>
 
-                <div className="p-3 bg-blue-50 rounded-xl">
-                  <p className="text-sm text-blue-700">Receiving to: <span className="font-medium">{paymentDisplay}</span></p>
+                <div className="p-3 bg-lime-soft border border-lime/40 rounded-2xl">
+                  <p className="text-sm text-[#5c6b12] font-semibold">Receiving to: <span className="font-extrabold">{paymentDisplay}</span></p>
                 </div>
               </div>
 
-              <div className="p-4 border-t sticky bottom-0 bg-white flex gap-3">
-                <button onClick={() => setShowBilling(false)} className="flex-1 py-3 border border-gray-200 rounded-xl hover:bg-gray-50">Cancel</button>
-                <button onClick={handleCheckout} disabled={change < 0} className="flex-1 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 disabled:opacity-50 flex items-center justify-center gap-2">
+              <div className="p-4 border-t border-line sticky bottom-0 bg-white flex gap-3">
+                <button onClick={() => setShowBilling(false)} className="btn btn-ghost flex-1 !py-3">Cancel</button>
+                <button onClick={handleCheckout} disabled={change < 0} className="btn btn-lime flex-1 !py-3">
                   <Check className="w-5 h-5" /> Complete Payment
                 </button>
               </div>
@@ -277,41 +293,44 @@ const POS: React.FC = () => {
           </div>
         )}
 
+        {/* Receipt modal */}
         {showReceipt && lastSale && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden print:shadow-none print:fixed print:inset-0 print:m-0 print:max-w-none">
-              <div className="bg-green-600 p-6 text-white text-center print:bg-white print:text-black">
-                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3 print:bg-green-100"><Check className="w-8 h-8 print:text-green-600" /></div>
-                <h2 className="text-2xl font-bold print:text-black">Payment Successful!</h2>
-                <p className="text-green-100 print:text-gray-600">{lastSale.date}</p>
+          <div className="fixed inset-0 bg-ink/40 backdrop-blur-[2px] flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-3xl shadow-pop max-w-md w-full overflow-hidden print:shadow-none print:fixed print:inset-0 print:m-0 print:max-w-none print:rounded-none">
+              <div className="bg-lime p-6 text-center print:bg-white">
+                <div className="w-16 h-16 bg-ink rounded-full flex items-center justify-center mx-auto mb-3 print:bg-cream">
+                  <Check className="w-8 h-8 text-lime print:text-ink" />
+                </div>
+                <h2 className="text-2xl font-extrabold tracking-tight text-ink">Payment Successful!</h2>
+                <p className="text-ink/60 text-sm">{lastSale.date}</p>
               </div>
 
               <div className="p-6">
-                <div className="border-b pb-4 mb-4">
-                  {lastSale.items.map(item => (
+                <div className="border-b border-line pb-4 mb-4">
+                  {lastSale.items.map((item) => (
                     <div key={item.product.id} className="flex justify-between py-1 text-sm">
-                      <span className="text-gray-600">{item.product.name} x{item.quantity}</span>
-                      <span>${(item.product.price * item.quantity).toFixed(2)}</span>
+                      <span className="text-stone-500">{item.product.name} x{item.quantity}</span>
+                      <span className="font-semibold">${(item.product.price * item.quantity).toFixed(2)}</span>
                     </div>
                   ))}
                 </div>
-                <div className="flex justify-between text-xl font-bold mb-4"><span>Total Paid</span><span className="text-green-600">${lastSale.total.toFixed(2)}</span></div>
-                
-                <div className="grid grid-cols-2 gap-4 text-sm mb-4">
-                  <div className="p-3 bg-gray-50 rounded-lg"><p className="text-gray-500">Payment</p><p className="font-medium">{lastSale.paymentMethod}</p></div>
-                  <div className="p-3 bg-gray-50 rounded-lg"><p className="text-gray-500">Change</p><p className="font-medium">${lastSale.change.toFixed(2)}</p></div>
+                <div className="flex justify-between text-xl font-extrabold mb-4 text-ink"><span>Total Paid</span><span>${lastSale.total.toFixed(2)}</span></div>
+
+                <div className="grid grid-cols-2 gap-3 text-sm mb-4">
+                  <div className="p-3 bg-cream-soft border border-line rounded-2xl"><p className="text-stone-400 text-xs font-bold uppercase tracking-wider">Payment</p><p className="font-bold text-ink">{lastSale.paymentMethod}</p></div>
+                  <div className="p-3 bg-cream-soft border border-line rounded-2xl"><p className="text-stone-400 text-xs font-bold uppercase tracking-wider">Change</p><p className="font-bold text-ink">${lastSale.change.toFixed(2)}</p></div>
                 </div>
 
                 {(customerName || customerPhone) && (
-                  <div className="text-sm text-gray-500 mb-4">
+                  <div className="text-sm text-stone-500 mb-4">
                     {customerName && <p>Customer: {customerName}</p>}
                     {customerPhone && <p>Phone: {customerPhone}</p>}
                   </div>
                 )}
 
                 <div className="flex gap-3 print:hidden">
-                  <button onClick={handlePrint} className="flex-1 py-2 border border-gray-200 rounded-xl hover:bg-gray-50 flex items-center justify-center gap-2"><Printer className="w-4 h-4" />Print</button>
-                  <button onClick={handleNewSale} className="flex-1 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700">New Sale</button>
+                  <button onClick={handlePrint} className="btn btn-ghost flex-1"><Printer className="w-4 h-4" />Print</button>
+                  <button onClick={handleNewSale} className="btn btn-dark flex-1">New Sale</button>
                 </div>
               </div>
             </div>
@@ -326,11 +345,12 @@ const POS: React.FC = () => {
             .print\\:inset-0 { top: 0 !important; right: 0 !important; bottom: 0 !important; left: 0 !important; }
             .print\\:m-0 { margin: 0 !important; }
             .print\\:max-w-none { max-width: none !important; }
+            .print\\:rounded-none { border-radius: 0 !important; }
             .print\\:shadow-none { box-shadow: none !important; }
             .print\\:bg-white { background: white !important; }
-            .print\\:text-black { color: black !important; }
-            .print\\:bg-green-100 { background: #dcfce7 !important; }
-            .print\\:text-green-600 { color: #16a34a !important; }
+            .print\\:bg-cream { background: #f4f2ea !important; }
+            .print\\:text-ink { color: #1d1d18 !important; }
+            .print\\:text-lime { color: #1d1d18 !important; }
           }
         `}</style>
       </div>

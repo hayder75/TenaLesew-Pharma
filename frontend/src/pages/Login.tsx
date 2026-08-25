@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/AuthContext';
-import { Building2, Eye, EyeOff, LogIn } from 'lucide-react';
+import { Eye, EyeOff, LogIn, Cross, ShieldCheck, Package, BarChart3, Building2, ArrowRight } from 'lucide-react';
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -16,7 +16,7 @@ const Login: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
     if (login(username, password)) {
       navigate('/dashboard');
     } else {
@@ -26,80 +26,95 @@ const Login: React.FC = () => {
   };
 
   const demoUsers = [
-    { username: 'admin', password: 'admin', role: 'Admin', access: 'Full Access - All Features' },
+    { username: 'admin', password: 'admin', role: 'Admin', access: 'Full access to everything' },
     { username: 'pharmacist', password: 'pass', role: 'Pharmacist', access: 'POS, Prescriptions, Products' },
-    { username: 'cashier', password: 'pass', role: 'Cashier', access: 'POS Only' },
+    { username: 'cashier', password: 'pass', role: 'Cashier', access: 'POS only' },
     { username: 'inventory', password: 'pass', role: 'Inventory Manager', access: 'Inventory, Suppliers' },
     { username: 'wholesale', password: 'pass', role: 'Wholesale Manager', access: 'Wholesale, Customers' },
   ];
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left Side */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 via-blue-700 to-purple-800 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-20 w-72 h-72 bg-white rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-white rounded-full blur-3xl"></div>
-        </div>
-        <div className="relative z-10 flex flex-col justify-center items-center w-full text-white p-12">
-          <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-8">
-            <Building2 className="w-14 h-14" />
+    <div className="min-h-screen bg-cream flex items-stretch p-3 sm:p-5 gap-5">
+      {/* Left brand panel */}
+      <div className="hidden lg:flex lg:w-[46%] card-dark !rounded-[28px] relative overflow-hidden flex-col justify-between p-10">
+        {/* playful shapes */}
+        <div className="absolute -top-16 -left-16 w-64 h-64 bg-lime/15 rounded-full" />
+        <div className="absolute bottom-24 -right-20 w-72 h-72 bg-lime/10 rounded-full" />
+        <div className="absolute top-1/3 right-16 w-10 h-10 bg-sun rounded-2xl rotate-12 opacity-80" />
+        <div className="absolute bottom-16 left-16 w-6 h-6 bg-sky rounded-full opacity-70" />
+
+        <div className="relative flex items-center gap-3">
+          <div className="w-11 h-11 bg-lime rounded-2xl flex items-center justify-center">
+            <Cross className="w-5 h-5 text-ink" strokeWidth={2.75} />
           </div>
-          <h1 className="text-5xl font-bold mb-4">PharmaSys</h1>
-          <p className="text-xl text-blue-100 text-center max-w-md">
-            Multi-branch Pharmacy Management System
+          <div className="leading-tight">
+            <p className="font-extrabold tracking-tight text-white">TenaLesew</p>
+            <p className="text-[11px] font-bold text-lime uppercase tracking-widest">Pharma</p>
+          </div>
+        </div>
+
+        <div className="relative">
+          <h1 className="text-[42px] leading-[1.1] font-extrabold tracking-tight text-white">
+            Health made <span className="text-lime">simple</span>,<br />
+            for every branch.
+          </h1>
+          <p className="text-white/50 mt-4 max-w-sm">
+            The multi-branch pharmacy platform — sales, stock, prescriptions and finance in one calm place.
           </p>
-          <div className="mt-12 flex flex-col gap-4 text-sm text-blue-100">
-            <p>✓ Retail & Wholesale Sales</p>
-            <p>✓ Inventory Management</p>
-            <p>✓ Financial Reports</p>
-            <p>✓ Multi-branch Support</p>
+          <div className="mt-8 flex flex-wrap gap-2">
+            <span className="chip bg-white/10 text-lime"><Package className="w-3.5 h-3.5" /> Inventory</span>
+            <span className="chip bg-white/10 text-lime"><BarChart3 className="w-3.5 h-3.5" /> Reports</span>
+            <span className="chip bg-white/10 text-lime"><Building2 className="w-3.5 h-3.5" /> Multi-branch</span>
+            <span className="chip bg-white/10 text-lime"><ShieldCheck className="w-3.5 h-3.5" /> Roles</span>
           </div>
         </div>
+
+        <p className="relative text-xs text-white/30">© {new Date().getFullYear()} TenaLesew Pharma · Addis Ababa</p>
       </div>
 
-      {/* Right Side */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50">
-        <div className="w-full max-w-md">
-          <div className="lg:hidden flex items-center justify-center mb-8">
-            <div className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center">
-              <Building2 className="w-10 h-10 text-white" />
+      {/* Right form panel */}
+      <div className="w-full lg:w-[54%] flex items-center justify-center p-4 sm:p-8 overflow-y-auto">
+        <div className="w-full max-w-md py-6">
+          <div className="lg:hidden flex items-center justify-center gap-3 mb-8">
+            <div className="w-11 h-11 bg-ink rounded-2xl flex items-center justify-center">
+              <Cross className="w-5 h-5 text-lime" strokeWidth={2.75} />
             </div>
-          </div>
-          
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900">Welcome back</h2>
-            <p className="text-gray-500 mt-2">Sign in to your account</p>
+            <p className="font-extrabold text-xl tracking-tight text-ink">TenaLesew Pharma</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <h2 className="text-[32px] font-extrabold tracking-tight text-ink leading-tight">
+            Welcome <span className="bg-lime px-2 rounded-lg">back!</span>
+          </h2>
+          <p className="text-stone-500 mt-2 text-sm">Sign in to your pharmacy workspace.</p>
+
+          <form onSubmit={handleSubmit} className="mt-7 space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-stone-400 mb-1.5">Username</label>
               <input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                className="input"
                 placeholder="Enter your username"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-stone-400 mb-1.5">Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all pr-12"
+                  className="input !pr-12"
                   placeholder="Enter your password"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 hover:text-ink"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -107,46 +122,51 @@ const Login: React.FC = () => {
             </div>
 
             {error && (
-              <div className="p-3 bg-red-50 border border-red-100 rounded-lg">
-                <p className="text-sm text-red-600">{error}</p>
+              <div className="px-4 py-3 bg-blush-soft border border-blush rounded-2xl">
+                <p className="text-sm text-[#a34141] font-medium">{error}</p>
               </div>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              className="btn btn-dark w-full !py-3.5 !text-base"
             >
               {loading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
-                  <LogIn className="w-5 h-5 mr-2" />
-                  Sign In
+                  Sign In <ArrowRight className="w-5 h-5" />
                 </>
               )}
             </button>
           </form>
 
-          {/* Demo Credentials */}
+          {/* Demo credentials */}
           <div className="mt-8">
-            <p className="text-sm text-gray-600 text-center font-medium mb-3">Demo Credentials - Click to fill</p>
-            <div className="grid grid-cols-1 gap-2">
+            <p className="text-xs font-bold uppercase tracking-wider text-stone-400 mb-3">Demo accounts — click to fill</p>
+            <div className="space-y-2">
               {demoUsers.map((demo) => (
                 <button
                   key={demo.username}
                   type="button"
-                  onClick={() => { setUsername(demo.username); setPassword(demo.password); }}
-                  className="p-3 bg-white border border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all text-left"
+                  onClick={() => {
+                    setUsername(demo.username);
+                    setPassword(demo.password);
+                  }}
+                  className="w-full p-3 bg-white border border-line rounded-2xl hover:border-lime hover:shadow-card transition-all text-left flex items-center justify-between group"
                 >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-gray-900">{demo.role}</p>
-                      <p className="text-xs text-gray-500">{demo.access}</p>
-                    </div>
+                  <div>
+                    <p className="font-bold text-sm text-ink">{demo.role}</p>
+                    <p className="text-xs text-stone-400">{demo.access}</p>
+                  </div>
+                  <div className="flex items-center gap-3">
                     <div className="text-right">
-                      <p className="text-sm font-mono text-gray-700">{demo.username}</p>
-                      <p className="text-xs text-gray-400">{demo.password}</p>
+                      <p className="text-xs font-bold text-ink font-mono">{demo.username}</p>
+                      <p className="text-[11px] text-stone-400 font-mono">{demo.password}</p>
+                    </div>
+                    <div className="w-8 h-8 rounded-full bg-lime-soft flex items-center justify-center text-[#5c6b12] group-hover:bg-lime transition-all">
+                      <LogIn className="w-4 h-4" />
                     </div>
                   </div>
                 </button>

@@ -3,17 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --primary: #2563eb;
-  --primary-dark: #1d4ed8;
-  --secondary: #64748b;
-  --success: #10b981;
-  --warning: #f59e0b;
-  --danger: #ef4444;
-  --bg-main: #f8fafc;
-  --bg-card: #ffffff;
-  --text-primary: #1e293b;
-  --text-secondary: #64748b;
-  --border: #e2e8f0;
+  --primary: #1d1d18;
+  --accent: #d9ed4e;
 }
 
 * {
@@ -23,73 +14,154 @@
 }
 
 body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: var(--bg-main);
-  color: var(--text-primary);
+  font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  background: #f4f2ea;
+  color: #1d1d18;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
 
 #root {
   width: 100%;
   max-width: 100%;
-  margin: 0;
-  text-align: left;
-  border: none;
   min-height: 100vh;
   display: block;
 }
 
 h1, h2, h3 {
-  font-weight: 600;
-  color: var(--text-primary);
+  color: #1d1d18;
 }
 
 button {
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.18s ease;
 }
 
 input, select, textarea {
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
+
+/* ---------- Design system primitives ---------- */
 
 .card {
-  background: var(--bg-card);
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border: 1px solid var(--border);
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #eae7dc;
+  box-shadow: 0 1px 2px rgba(29, 29, 24, 0.04);
 }
 
-.btn-primary {
-  background: var(--primary);
-  color: white;
-  padding: 10px 20px;
+.card-dark {
+  background: #1d1d18;
+  color: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #1d1d18;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.625rem 1.25rem;
+  white-space: nowrap;
+}
+
+.btn-dark {
+  background: #1d1d18;
+  color: #ffffff;
+}
+.btn-dark:hover {
+  background: #2b2b24;
+}
+
+.btn-lime {
+  background: #d9ed4e;
+  color: #1d1d18;
+}
+.btn-lime:hover {
+  background: #c2db35;
+}
+
+.btn-ghost {
+  background: #ffffff;
+  color: #1d1d18;
+  border: 1px solid #eae7dc;
+}
+.btn-ghost:hover {
+  background: #faf9f4;
+}
+
+.btn-danger {
+  background: #fbe9e9;
+  color: #b04a4a;
+}
+.btn-danger:hover {
+  background: #f6d5d5;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.input {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #eae7dc;
+  border-radius: 14px;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  color: #1d1d18;
+  outline: none;
+}
+.input::placeholder {
+  color: #a8a494;
+}
+.input:focus {
+  border-color: #d9ed4e;
+  box-shadow: 0 0 0 3px rgba(217, 237, 78, 0.35);
+}
+
+select.input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23a8a494' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.9rem center;
+  padding-right: 2.25rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* soft scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #dcd8c9;
   border-radius: 8px;
-  border: none;
-  font-weight: 500;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #c9c5b4;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-.btn-primary:hover {
-  background: var(--primary-dark);
-}
-
-.stat-card {
-  background: linear-gradient(135deg, var(--primary) 0%, #3b82f6 100%);
-  color: white;
-}
-
-.stat-card.green {
-  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
-}
-
-.stat-card.orange {
-  background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
-}
-
-.stat-card.red {
-  background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
-}
-
-.stat-card.purple {
-  background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+/* selection */
+::selection {
+  background: rgba(217, 237, 78, 0.5);
+  color: #1d1d18;
 }
