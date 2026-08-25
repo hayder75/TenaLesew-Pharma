@@ -96,10 +96,10 @@ const Dashboard: React.FC = () => {
       <div className="space-y-5">
         {/* Greeting hero */}
         <div>
-          <h1 className="text-[26px] sm:text-[32px] lg:text-[38px] leading-tight font-extrabold tracking-tight text-ink">
+          <h1 className="text-[21px] sm:text-[30px] lg:text-[38px] leading-snug sm:leading-tight font-extrabold tracking-tight text-ink">
             Good {dayPart}, {user?.username}! <span className="inline-block">👋</span>
             <br />
-            Here's your <span className="bg-lime px-2 sm:px-2.5 rounded-xl">pharmacy</span> at a glance.
+            Here's your <span className="bg-lime px-1.5 sm:px-2.5 rounded-lg sm:rounded-xl">pharmacy</span> at a glance.
           </h1>
           <div className="flex flex-wrap items-center gap-2 mt-4">
             <Chip tone="dark">
@@ -242,31 +242,29 @@ const Dashboard: React.FC = () => {
               const needsMore = !product || available < med.suggestedStock;
               const shortBy = Math.max(0, med.suggestedStock - available);
               return (
-                <div key={med.name} className="px-5 py-3.5 flex items-center justify-between gap-3 hover:bg-cream-soft">
-                  <div className="flex items-center gap-3 min-w-0">
+                <div key={med.name} className="px-4 sm:px-5 py-3.5 hover:bg-cream-soft">
+                  <div className="flex items-start gap-3">
                     <div className="w-9 h-9 bg-lav-soft rounded-2xl flex items-center justify-center shrink-0">
                       <Package className="w-4 h-4 text-[#5d4394]" />
                     </div>
-                    <div className="min-w-0">
-                      <p className="font-bold text-sm text-ink">{med.name}</p>
-                      <p className="text-xs text-stone-400 truncate">{med.reason}</p>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-bold text-sm text-ink leading-snug break-words">{med.name}</p>
+                      <p className="text-xs text-stone-400 mt-0.5">{med.reason}</p>
+                      <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                        {product ? (
+                          <Chip tone="neutral">In stock: {available}</Chip>
+                        ) : (
+                          <Chip tone="neutral">Not in inventory</Chip>
+                        )}
+                        {needsMore ? (
+                          <Chip tone="blush">
+                            <AlertTriangle className="w-3 h-3" />Supply more ({shortBy} short)
+                          </Chip>
+                        ) : (
+                          <Chip tone="mint">Stocked up</Chip>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    {product ? (
-                      <p className="text-xs text-stone-400">
-                        In stock: <span className="font-bold text-ink">{available}</span>
-                      </p>
-                    ) : (
-                      <p className="text-xs text-stone-400">Not in inventory</p>
-                    )}
-                    {needsMore ? (
-                      <Chip tone="blush" className="mt-1">
-                        <AlertTriangle className="w-3 h-3" />Supply more ({shortBy} short)
-                      </Chip>
-                    ) : (
-                      <Chip tone="mint" className="mt-1">Stocked up</Chip>
-                    )}
                   </div>
                 </div>
               );
