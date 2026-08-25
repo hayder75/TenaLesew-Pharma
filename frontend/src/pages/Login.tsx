@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/AuthContext';
-import { Eye, EyeOff, LogIn, Cross, ShieldCheck, Package, BarChart3, Building2, ArrowRight } from 'lucide-react';
+import { Cross, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { errMsg } from '../lib/format';
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -16,28 +17,29 @@ const Login: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    if (login(username, password)) {
-      navigate('/dashboard');
-    } else {
-      setError('Invalid username or password');
+    try {
+      const session = await login(username, password);
+      navigate(session.user.role === 'SUPER_ADMIN' ? '/platform' : '/dashboard');
+    } catch (err) {
+      setError(errMsg(err));
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const demoUsers = [
-    { username: 'admin', password: 'admin', role: 'Admin', access: 'Full access to everything' },
-    { username: 'pharmacist', password: 'pass', role: 'Pharmacist', access: 'POS, Prescriptions, Products' },
-    { username: 'cashier', password: 'pass', role: 'Cashier', access: 'POS only' },
-    { username: 'inventory', password: 'pass', role: 'Inventory Manager', access: 'Inventory, Suppliers' },
-    { username: 'wholesale', password: 'pass', role: 'Wholesale Manager', access: 'Wholesale, Customers' },
+    { username: 'superadmin', password: 'Hayder2026!', role: 'Super Admin', access: 'Platform console' },
+    { username: 'owner', password: 'Owner2026!', role: 'Owner', access: 'Full pharmacy access' },
+    { username: 'manager', password: 'Staff2026!', role: 'Branch Manager', access: 'Branch operations' },
+    { username: 'pharmacist', password: 'Staff2026!', role: 'Pharmacist', access: 'POS, prescriptions' },
+    { username: 'cashier', password: 'Staff2026!', role: 'Cashier', access: 'POS only' },
+    { username: 'inventory', password: 'Staff2026!', role: 'Inventory Manager', access: 'Stock & suppliers' },
   ];
 
   return (
     <div className="min-h-screen bg-cream flex items-stretch p-3 sm:p-5 gap-5">
       {/* Left brand panel */}
       <div className="hidden lg:flex lg:w-[46%] card-dark !rounded-[28px] relative overflow-hidden flex-col justify-between p-10">
-        {/* playful shapes */}
         <div className="absolute -top-16 -left-16 w-64 h-64 bg-lime/15 rounded-full" />
         <div className="absolute bottom-24 -right-20 w-72 h-72 bg-lime/10 rounded-full" />
         <div className="absolute top-1/3 right-16 w-10 h-10 bg-sun rounded-2xl rotate-12 opacity-80" />
@@ -61,12 +63,6 @@ const Login: React.FC = () => {
           <p className="text-white/50 mt-4 max-w-sm">
             The multi-branch pharmacy platform — sales, stock, prescriptions and finance in one calm place.
           </p>
-          <div className="mt-8 flex flex-wrap gap-2">
-            <span className="chip bg-white/10 text-lime"><Package className="w-3.5 h-3.5" /> Inventory</span>
-            <span className="chip bg-white/10 text-lime"><BarChart3 className="w-3.5 h-3.5" /> Reports</span>
-            <span className="chip bg-white/10 text-lime"><Building2 className="w-3.5 h-3.5" /> Multi-branch</span>
-            <span className="chip bg-white/10 text-lime"><ShieldCheck className="w-3.5 h-3.5" /> Roles</span>
-          </div>
         </div>
 
         <p className="relative text-xs text-white/30">© {new Date().getFullYear()} TenaLesew Pharma · Addis Ababa</p>
@@ -90,14 +86,7 @@ const Login: React.FC = () => {
           <form onSubmit={handleSubmit} className="mt-7 space-y-4">
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-stone-400 mb-1.5">Username</label>
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="input"
-                placeholder="Enter your username"
-                required
-              />
+              <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="input" placeholder="Enter your username" required />
             </div>
 
             <div>
@@ -127,22 +116,11 @@ const Login: React.FC = () => {
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn btn-dark w-full !py-3.5 !text-base"
-            >
-              {loading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                <>
-                  Sign In <ArrowRight className="w-5 h-5" />
-                </>
-              )}
+            <button type="submit" disabled={loading} className="btn btn-dark w-full !py-3.5 !text-base">
+              {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>Sign In <ArrowRight className="w-5 h-5" /></>}
             </button>
           </form>
 
-          {/* Demo credentials */}
           <div className="mt-8">
             <p className="text-xs font-bold uppercase tracking-wider text-stone-400 mb-3">Demo accounts — click to fill</p>
             <div className="space-y-2">
@@ -160,14 +138,9 @@ const Login: React.FC = () => {
                     <p className="font-bold text-sm text-ink">{demo.role}</p>
                     <p className="text-xs text-stone-400">{demo.access}</p>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="text-right">
-                      <p className="text-xs font-bold text-ink font-mono">{demo.username}</p>
-                      <p className="text-[11px] text-stone-400 font-mono">{demo.password}</p>
-                    </div>
-                    <div className="w-8 h-8 rounded-full bg-lime-soft flex items-center justify-center text-[#5c6b12] group-hover:bg-lime transition-all">
-                      <LogIn className="w-4 h-4" />
-                    </div>
+                  <div className="text-right">
+                    <p className="text-xs font-bold text-ink font-mono">{demo.username}</p>
+                    <p className="text-[11px] text-stone-400 font-mono">{demo.password}</p>
                   </div>
                 </button>
               ))}

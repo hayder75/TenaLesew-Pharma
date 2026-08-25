@@ -1,57 +1,89 @@
 import React, { useState } from 'react';
 import Layout from '../components/Layout';
-import { Modal, PageHeader, StatCard, Chip, EmptyState, Th, Td } from '../components/ui';
-import { Camera, FileText, Search, Eye, Trash2, Download, Upload, Clock, CheckCircle, AlertCircle } from 'lucide-react';
-
-interface Prescription {
-  id: number;
-  customerName: string;
-  phone: string;
-  uploadedAt: string;
-  status: 'pending' | 'processed' | 'completed';
-  notes: string;
-  seller: string;
-}
-
-const mockPrescriptions: Prescription[] = [
-  { id: 1, customerName: 'John Doe', phone: '0912345678', uploadedAt: '2026-04-22 10:30', status: 'pending', notes: 'For blood pressure medication', seller: 'pharmacist' },
-  { id: 2, customerName: 'Sarah Johnson', phone: '0919876543', uploadedAt: '2026-04-21 14:15', status: 'processed', notes: 'Antibiotics', seller: 'admin' },
-];
+import { useAuth } from '../lib/AuthContext';
+import { apiGet, apiPost } from '../lib/api';
+import { useApi } from '../hooks/useApi';
+import { dateTimeStr, errMsg } from '../lib/format';
+import { PageHeader, StatCard, Chip, Modal, Btn, Th, Td, EmptyState, statusTone } from '../components/ui';
+import { Search, Upload, Clock, CheckCircle, AlertCircle, Eye, Camera } from 'lucide-react';
+import type { Prescription } from '../lib/types';
+import { canVerifyRx } from '../lib/roles';
 
 const Prescriptions: React.FC = () => {
-  const [showUpload, setShowUpload] = useState(false);
+  const { currentBranch, user } = useAuth();
+  const branchId = currentBranch?.id;
   const [search, setSearch] = useState('');
-  const [uploadFile, setUploadFile] = useState<File | null>(null);
-  const [customerName, setCustomerName] = useState('');
-  const [customerPhone, setCustomerPhone] = useState('');
-  const [notes, setNotes] = useState('');
-  const [prescriptions, setPrescriptions] = useState(mockPrescriptions);
+  const [showUpload, setShowUpload] = useState(false);
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
 
-  const filteredPrescriptions = prescriptions.filter(
-    (p) => p.customerName.toLowerCase().includes(search.toLowerCase()) || p.phone.includes(search)
+  const { data: rxs, loading, reload } = useApi<{ items: Prescription[] }>(
+    () => apiGet(`/prescriptions?limit=50${branchId ? `&branchId=${branchId}` : ''}${search ? `&search=${encodeURIComponent(search)}` : ''}`),
+    [search, branchId]
   );
 
-  const handleUpload = () => {
-    if (!uploadFile) return;
-    const newPrescription: Prescription = {
-      id: prescriptions.length + 1,
-      customerName: customerName || 'Unknown',
-      phone: customerPhone || 'N/A',
-      uploadedAt: new Date().toLocaleString(),
-      status: 'pending',
-      notes,
-      seller: 'current_user',
+  const [form, setForm] = useState({ customerName: '', phone: '', doctorName: '', notes: '', photoBase64: '' });
+  const [photoName, setPhotoName] = useState('');
+
+  const pickPhoto = (file: File | undefined) => {
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Photo too large — max 5MB');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setForm((f) => ({ ...f, photoBase64: reader.result as string }));
+      setPhotoName(file.name);
     };
-    setPrescriptions([newPrescription, ...prescriptions]);
-    setShowUpload(false);
-    setUploadFile(null);
-    setCustomerName('');
-    setCustomerPhone('');
-    setNotes('');
+    reader.readAsDataURL(file);
   };
 
-  const updateStatus = (id: number, status: Prescription['status']) => {
-    setPrescriptions(prescriptions.map((p) => (p.id === id ? { ...p, status } : p)));
+  const upload = async () => {
+    setBusy(true);
+    setError('');
+    try {
+      await apiPost('/prescriptions', {
+        branchId,
+        customerName: form.customerName || undefined,
+        phone: form.phone || undefined,
+        doctorName: form.doctorName || undefined,
+        notes: form.notes || undefined,
+        photoBase64: form.photoBase64 || undefined,
+      });
+      setShowUpload(false);
+      setForm({ customerName: '', phone: '', doctorName: '', notes: '', photoBase64: '' });
+      setPhotoName('');
+      reload();
+    } catch (e) {
+      setError(errMsg(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const verify = async (id: string) => {
+    setError('');
+    try {
+      await apiPost(`/prescriptions/${id}/verify`);
+      reload();
+    } catch (e) {
+      setError(errMsg(e));
+    }
+  };
+
+  const viewPhoto = async (rx: Prescription) => {
+    if (!rx.photoPath) return;
+    try {
+      const res = await fetch(`${(import.meta.env.VITE_API_URL || 'http://localhost:4100/api/v1')}/prescriptions/${rx.id}/photo`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('tl_access')}` },
+      });
+      if (!res.ok) throw new Error('Photo not found');
+      const url = URL.createObjectURL(await res.blob());
+      window.open(url, '_blank');
+    } catch (e) {
+      setError(errMsg(e));
+    }
   };
 
   return (
@@ -59,122 +91,83 @@ const Prescriptions: React.FC = () => {
       <div className="space-y-4">
         <PageHeader
           title="Prescriptions"
-          subtitle="Manage prescription uploads and processing"
-          actions={
-            <button onClick={() => setShowUpload(true)} className="btn btn-dark">
-              <Upload className="w-5 h-5" />
-              Upload Rx
-            </button>
-          }
+          subtitle="Upload, verify and track prescriptions"
+          actions={<Btn variant="dark" onClick={() => setShowUpload(true)}><Upload className="w-5 h-5" />Upload Rx</Btn>}
         />
 
-        {/* Stats */}
+        {error && <div className="px-4 py-3 bg-blush-soft border border-blush rounded-2xl text-sm text-[#a34141] font-medium">{error}</div>}
+
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <StatCard label="Pending" value={prescriptions.filter((p) => p.status === 'pending').length} icon={Clock} tone="sun" />
-          <StatCard label="Processed" value={prescriptions.filter((p) => p.status === 'processed').length} icon={AlertCircle} tone="sky" />
-          <StatCard label="Completed" value={prescriptions.filter((p) => p.status === 'completed').length} icon={CheckCircle} tone="mint" />
+          <StatCard label="Pending" value={rxs?.items.filter((r) => r.status === 'RECEIVED').length || 0} icon={Clock} tone="sun" />
+          <StatCard label="Verified" value={rxs?.items.filter((r) => r.status === 'VERIFIED').length || 0} icon={AlertCircle} tone="sky" />
+          <StatCard label="Dispensed" value={rxs?.items.filter((r) => r.status === 'DISPENSED').length || 0} icon={CheckCircle} tone="mint" />
         </div>
 
-        {/* Search */}
-        <div className="relative">
+        <div className="relative max-w-md">
           <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" />
-          <input
-            type="text"
-            placeholder="Search by customer name or phone..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="input !rounded-full !py-3 !pl-10"
-          />
+          <input className="input !rounded-full !pl-10" placeholder="Search by customer or phone…" value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
 
-        {/* List — table (desktop) */}
+        {loading && <div className="card p-8 text-center text-stone-400">Loading…</div>}
+
         <div className="card overflow-hidden hidden md:block">
           <table className="w-full min-w-[680px]">
             <thead className="bg-cream-soft border-b border-line">
-              <tr>
-                <Th>ID</Th>
-                <Th>Customer</Th>
-                <Th>Phone</Th>
-                <Th>Uploaded</Th>
-                <Th>Status</Th>
-                <Th className="text-right">Actions</Th>
-              </tr>
+              <tr><Th>Customer</Th><Th>Phone</Th><Th>Doctor</Th><Th>Uploaded</Th><Th>Status</Th><Th className="text-right">Actions</Th></tr>
             </thead>
             <tbody className="divide-y divide-cream-deep/70">
-              {filteredPrescriptions.map((prescription) => (
-                <tr key={prescription.id} className="hover:bg-cream-soft">
-                  <Td className="font-bold text-stone-400">#{prescription.id}</Td>
-                  <Td className="font-bold text-ink">{prescription.customerName}</Td>
-                  <Td className="text-stone-500">{prescription.phone}</Td>
-                  <Td className="text-stone-400 text-xs">{prescription.uploadedAt}</Td>
+              {rxs?.items.map((rx) => (
+                <tr key={rx.id} className="hover:bg-cream-soft">
+                  <Td className="font-bold text-ink">{rx.customerName || 'Unknown'}</Td>
+                  <Td className="text-stone-500">{rx.phone || '—'}</Td>
+                  <Td className="text-stone-500">{rx.doctorName || '—'}</Td>
+                  <Td className="text-stone-400 text-xs">{dateTimeStr(rx.createdAt)}</Td>
+                  <Td><Chip tone={statusTone(rx.status)}>{rx.status.toLowerCase()}</Chip></Td>
                   <Td>
-                    <select
-                      value={prescription.status}
-                      onChange={(e) => updateStatus(prescription.id, e.target.value as Prescription['status'])}
-                      className={`chip border-0 cursor-pointer ${prescription.status === 'pending' ? 'bg-sun-soft text-[#8a6d10]' : prescription.status === 'processed' ? 'bg-sky-soft text-[#3d5a94]' : 'bg-mint-soft text-[#2f6b46]'}`}
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="processed">Processed</option>
-                      <option value="completed">Completed</option>
-                    </select>
-                  </Td>
-                  <Td>
-                    <div className="flex items-center justify-end gap-1">
-                      <button className="p-2 text-stone-400 hover:text-ink hover:bg-lime-soft rounded-full"><Eye className="w-4 h-4" /></button>
-                      <button className="p-2 text-stone-400 hover:text-ink hover:bg-cream-deep rounded-full"><Download className="w-4 h-4" /></button>
-                      <button className="p-2 text-stone-400 hover:text-[#a34141] hover:bg-blush-soft rounded-full"><Trash2 className="w-4 h-4" /></button>
+                    <div className="flex items-center justify-end gap-1.5">
+                      {rx.photoPath && <button onClick={() => viewPhoto(rx)} className="p-2 text-stone-400 hover:text-ink hover:bg-lime-soft rounded-full" title="View photo"><Eye className="w-4 h-4" /></button>}
+                      {rx.status === 'RECEIVED' && canVerifyRx(user?.role || 'CASHIER') && (
+                        <Btn variant="lime" onClick={() => verify(rx.id)}>Verify</Btn>
+                      )}
                     </div>
                   </Td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {filteredPrescriptions.length === 0 && <EmptyState icon={FileText} title="No prescriptions found" />}
+          {rxs?.items.length === 0 && <EmptyState icon={Upload} title="No prescriptions yet" />}
         </div>
 
-        {/* List — cards (mobile) */}
         <div className="md:hidden space-y-3">
-          {filteredPrescriptions.map((prescription) => (
-            <div key={prescription.id} className="card p-4">
+          {rxs?.items.map((rx) => (
+            <div key={rx.id} className="card p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="font-extrabold text-ink tracking-tight truncate">{prescription.customerName}</p>
-                  <p className="text-xs text-stone-400">{prescription.phone} · #{prescription.id}</p>
+                  <p className="font-extrabold text-ink tracking-tight truncate">{rx.customerName || 'Unknown'}</p>
+                  <p className="text-xs text-stone-400">{rx.phone || '—'} · {rx.doctorName || '—'}</p>
                 </div>
-                <select
-                  value={prescription.status}
-                  onChange={(e) => updateStatus(prescription.id, e.target.value as Prescription['status'])}
-                  className={`chip border-0 cursor-pointer shrink-0 ${prescription.status === 'pending' ? 'bg-sun-soft text-[#8a6d10]' : prescription.status === 'processed' ? 'bg-sky-soft text-[#3d5a94]' : 'bg-mint-soft text-[#2f6b46]'}`}
-                >
-                  <option value="pending">Pending</option>
-                  <option value="processed">Processed</option>
-                  <option value="completed">Completed</option>
-                </select>
+                <Chip tone={statusTone(rx.status)}>{rx.status.toLowerCase()}</Chip>
               </div>
               <div className="flex items-center justify-between mt-3 pt-3 border-t border-line">
-                <p className="text-xs text-stone-400 font-semibold">{prescription.uploadedAt}</p>
-                <div className="flex items-center gap-1">
-                  <button className="p-2 text-stone-400 hover:text-ink hover:bg-lime-soft rounded-full"><Eye className="w-4 h-4" /></button>
-                  <button className="p-2 text-stone-400 hover:text-ink hover:bg-cream-deep rounded-full"><Download className="w-4 h-4" /></button>
-                  <button className="p-2 text-stone-400 hover:text-[#a34141] hover:bg-blush-soft rounded-full"><Trash2 className="w-4 h-4" /></button>
+                <p className="text-xs text-stone-400">{dateTimeStr(rx.createdAt)}</p>
+                <div className="flex gap-1.5">
+                  {rx.photoPath && <Btn variant="ghost" onClick={() => viewPhoto(rx)}><Eye className="w-4 h-4" /></Btn>}
+                  {rx.status === 'RECEIVED' && canVerifyRx(user?.role || 'CASHIER') && <Btn variant="lime" onClick={() => verify(rx.id)}>Verify</Btn>}
                 </div>
               </div>
             </div>
           ))}
-          {filteredPrescriptions.length === 0 && (
-            <div className="card"><EmptyState icon={FileText} title="No prescriptions found" /></div>
-          )}
         </div>
 
         {/* Upload modal */}
         <Modal
           open={showUpload}
           onClose={() => setShowUpload(false)}
-          title="Upload Prescription"
+          title="Upload prescription"
           footer={
             <>
-              <button onClick={() => setShowUpload(false)} className="btn btn-ghost flex-1">Cancel</button>
-              <button onClick={handleUpload} disabled={!uploadFile} className="btn btn-dark flex-1">Upload</button>
+              <Btn variant="ghost" className="flex-1" onClick={() => setShowUpload(false)}>Cancel</Btn>
+              <Btn variant="dark" className="flex-1" onClick={upload} disabled={busy}>{busy ? 'Uploading…' : 'Upload'}</Btn>
             </>
           }
         >
@@ -182,15 +175,16 @@ const Prescriptions: React.FC = () => {
             <div className="w-14 h-14 bg-cream-deep rounded-2xl flex items-center justify-center mx-auto mb-2">
               <Camera className="w-6 h-6 text-stone-400" />
             </div>
-            <input type="file" accept="image/*" onChange={(e) => setUploadFile(e.target.files?.[0] || null)} className="hidden" id="rx-upload" />
-            <label htmlFor="rx-upload" className="cursor-pointer font-semibold text-ink underline decoration-lime decoration-2 underline-offset-4 text-sm">
-              Click to upload
+            <input type="file" accept="image/*" className="hidden" id="rx-photo" onChange={(e) => pickPhoto(e.target.files?.[0])} />
+            <label htmlFor="rx-photo" className="cursor-pointer font-semibold text-ink underline decoration-lime decoration-2 underline-offset-4 text-sm">
+              Choose a photo
             </label>
-            {uploadFile && <p className="mt-2"><Chip tone="mint">{uploadFile.name}</Chip></p>}
+            {photoName && <p className="mt-2 text-xs text-stone-400">{photoName}</p>}
           </div>
-          <input type="text" placeholder="Customer Name (optional)" value={customerName} onChange={(e) => setCustomerName(e.target.value)} className="input" />
-          <input type="tel" placeholder="Phone Number (optional)" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} className="input" />
-          <textarea placeholder="Notes (optional)" value={notes} onChange={(e) => setNotes(e.target.value)} className="input" rows={3} />
+          <input className="input" placeholder="Customer name (optional)" value={form.customerName} onChange={(e) => setForm({ ...form, customerName: e.target.value })} />
+          <input className="input" placeholder="Phone (optional)" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+          <input className="input" placeholder="Doctor name (optional)" value={form.doctorName} onChange={(e) => setForm({ ...form, doctorName: e.target.value })} />
+          <textarea className="input" rows={2} placeholder="Notes (optional)" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
         </Modal>
       </div>
     </Layout>
