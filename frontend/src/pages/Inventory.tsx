@@ -184,6 +184,7 @@ const Inventory: React.FC = () => {
                   <div><label className="text-sm text-gray-500">Price</label><input type="number" defaultValue={selectedProduct.price} className="w-full mt-1 px-3 py-2 border border-gray-200 rounded-xl" /></div>
                   <div><label className="text-sm text-gray-500">Stock</label><input type="number" defaultValue={selectedProduct.stock} className="w-full mt-1 px-3 py-2 border border-gray-200 rounded-xl" /></div>
                   <div><label className="text-sm text-gray-500">Min Stock</label><input type="number" defaultValue={selectedProduct.minStock} className="w-full mt-1 px-3 py-2 border border-gray-200 rounded-xl" /></div>
+                  <div><label className="text-sm text-gray-500">Expiry Date</label><input type="date" defaultValue={selectedProduct.expiryDate} className="w-full mt-1 px-3 py-2 border border-gray-200 rounded-xl" /></div>
                 </div>
               </div>
               <div className="p-4 border-t flex gap-3">

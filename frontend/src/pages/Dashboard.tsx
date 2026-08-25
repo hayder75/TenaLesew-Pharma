@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { useAuth } from '../lib/AuthContext';
 import { mockSales, mockProducts, mockBanks } from '../lib/mockData';
+import { getSeasonalMedicines } from '../lib/seasonalData';
 import { 
   Package, 
   AlertTriangle, 
@@ -12,7 +13,8 @@ import {
   Clock,
   FileText,
   Truck,
-  ArrowUpRight
+  ArrowUpRight,
+  Sparkles
 } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
@@ -24,6 +26,8 @@ const Dashboard: React.FC = () => {
   const lowStockProducts = mockProducts.filter(p => (p.minStock || 10) >= p.stock).length;
   const outOfStock = mockProducts.filter(p => p.stock === 0).length;
   const totalBankBalance = mockBanks.reduce((sum, b) => sum + b.balance, 0);
+
+  const seasonal = getSeasonalMedicines();
 
   const navigateTo = (path: string) => {
     navigate(path);
@@ -84,11 +88,11 @@ const Dashboard: React.FC = () => {
   const quickActions = getQuickActions();
 
   const colorMap: Record<string, string> = {
-    blue: 'from-blue-500 to-blue-600',
-    green: 'from-green-500 to-green-600',
-    red: 'from-red-500 to-red-600',
-    purple: 'from-purple-500 to-purple-600',
-    orange: 'from-orange-500 to-orange-600',
+    blue: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+    green: 'linear-gradient(135deg, #10b981, #059669)',
+    red: 'linear-gradient(135deg, #ef4444, #dc2626)',
+    purple: 'linear-gradient(135deg, #a855f7, #9333ea)',
+    orange: 'linear-gradient(135deg, #f97316, #ea580c)',
   };
 
   return (
@@ -114,7 +118,7 @@ const Dashboard: React.FC = () => {
           {stats.map((stat, index) => {
             const Icon = stat.icon;
             return (
-              <div key={index} className={`card p-5 bg-gradient-to-br ${colorMap[stat.color]} text-white`}>
+              <div key={index} className="card p-5 text-white" style={{ background: colorMap[stat.color] }}>
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="text-white/80 text-sm">{stat.label}</p>
@@ -216,6 +220,64 @@ const Dashboard: React.FC = () => {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+
+        {/* Seasonal Medicines */}
+        <div className="card">
+          <div className="p-4 border-b border-gray-100 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-purple-600" />
+              </div>
+              <div>
+                <h2 className="font-semibold text-gray-900">Seasonal Medicines — {seasonal.title}</h2>
+                <p className="text-sm text-gray-500">{seasonal.note}</p>
+              </div>
+            </div>
+            <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium whitespace-nowrap">
+              Suggested for {new Date().toLocaleDateString('en-US', { month: 'long' })}
+            </span>
+          </div>
+          <div className="divide-y divide-gray-50">
+            {seasonal.medicines.map(med => {
+              const product = mockProducts.find(p => p.name === med.name);
+              const available = product?.stock || 0;
+              const needsMore = !product || available < med.suggestedStock;
+              const shortBy = Math.max(0, med.suggestedStock - available);
+              return (
+                <div key={med.name} className="p-4 flex items-center justify-between gap-3 hover:bg-gray-50">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center shrink-0">
+                      <Package className="w-5 h-5 text-purple-500" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-medium text-gray-900">{med.name}</p>
+                      <p className="text-sm text-gray-500">{med.reason}</p>
+                    </div>
+                  </div>
+                  <div className="text-right shrink-0">
+                    {product ? (
+                      <p className="text-sm text-gray-500">In stock: <span className="font-medium text-gray-900">{available}</span></p>
+                    ) : (
+                      <p className="text-sm text-gray-400">Not in inventory</p>
+                    )}
+                    {needsMore ? (
+                      <span className="inline-flex items-center gap-1 mt-1 px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700">
+                        <AlertTriangle className="w-3 h-3" />Supply more ({shortBy} short)
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 mt-1 px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">
+                        Stocked up
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="p-3 border-t border-gray-100 bg-gray-50 rounded-b-2xl text-xs text-gray-400">
+            Seasonal recommendations use typical demand patterns for this time of year. Smarter demand-based suggestions come later.
           </div>
         </div>
       </div>

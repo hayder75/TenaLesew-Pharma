@@ -97,16 +97,16 @@ export const mockUsers: User[] = [
 ];
 
 export const mockProducts: Product[] = [
-  { id: 1, name: "Paracetamol 500mg", price: 5.00, stock: 100, category: "Pain Relief", expiryDate: "2026-12-31", barcode: "123456789", supplier: "PharmaCo", minStock: 20 },
-  { id: 2, name: "Ibuprofen 200mg", price: 3.50, stock: 150, category: "Pain Relief", barcode: "123456790", supplier: "PharmaCo", minStock: 30 },
-  { id: 3, name: "Amoxicillin 500mg", price: 12.00, stock: 50, category: "Antibiotics", expiryDate: "2026-10-15", barcode: "123456791", supplier: "MedSupply", minStock: 15 },
-  { id: 4, name: "Vitamin C 1000mg", price: 8.00, stock: 200, category: "Vitamins", barcode: "123456792", supplier: "Health Dist", minStock: 40 },
-  { id: 5, name: "Cough Syrup", price: 7.50, stock: 80, category: "Cough & Cold", expiryDate: "2027-01-01", barcode: "123456793", supplier: "PharmaCo", minStock: 20 },
-  { id: 6, name: "Panadol Extra", price: 6.00, stock: 120, category: "Pain Relief", barcode: "123456794", supplier: "PharmaCo", minStock: 25 },
+  { id: 1, name: "Paracetamol 500mg", price: 5.00, stock: 100, category: "Pain Relief", expiryDate: "2027-05-30", barcode: "123456789", supplier: "PharmaCo", minStock: 20 },
+  { id: 2, name: "Ibuprofen 200mg", price: 3.50, stock: 12, category: "Pain Relief", expiryDate: "2026-09-20", barcode: "123456790", supplier: "PharmaCo", minStock: 30 },
+  { id: 3, name: "Amoxicillin 500mg", price: 12.00, stock: 8, category: "Antibiotics", expiryDate: "2026-10-15", barcode: "123456791", supplier: "MedSupply", minStock: 15 },
+  { id: 4, name: "Vitamin C 1000mg", price: 8.00, stock: 200, category: "Vitamins", expiryDate: "2027-08-01", barcode: "123456792", supplier: "Health Dist", minStock: 40 },
+  { id: 5, name: "Cough Syrup", price: 7.50, stock: 16, category: "Cough & Cold", expiryDate: "2026-10-05", barcode: "123456793", supplier: "PharmaCo", minStock: 20 },
+  { id: 6, name: "Panadol Extra", price: 6.00, stock: 25, category: "Pain Relief", expiryDate: "2027-01-15", barcode: "123456794", supplier: "PharmaCo", minStock: 25 },
   { id: 7, name: "Augmentin 625mg", price: 18.00, stock: 30, category: "Antibiotics", expiryDate: "2026-08-30", barcode: "123456795", supplier: "MedSupply", minStock: 10 },
-  { id: 8, name: "Neurobion", price: 15.00, stock: 45, category: "Vitamins", barcode: "123456796", supplier: "Health Dist", minStock: 15 },
-  { id: 9, name: "Cetirizine 10mg", price: 4.00, stock: 200, category: "Allergy", barcode: "123456797", supplier: "PharmaCo", minStock: 50 },
-  { id: 10, name: "ORS Packet", price: 2.00, stock: 500, category: "Digestive", barcode: "123456798", supplier: "Health Dist", minStock: 100 },
+  { id: 8, name: "Neurobion", price: 15.00, stock: 45, category: "Vitamins", expiryDate: "2027-03-20", barcode: "123456796", supplier: "Health Dist", minStock: 15 },
+  { id: 9, name: "Cetirizine 10mg", price: 4.00, stock: 55, category: "Allergy", expiryDate: "2026-11-05", barcode: "123456797", supplier: "PharmaCo", minStock: 50 },
+  { id: 10, name: "ORS Packet", price: 2.00, stock: 500, category: "Digestive", expiryDate: "2027-06-15", barcode: "123456798", supplier: "Health Dist", minStock: 100 },
 ];
 
 export const mockSales: Sale[] = [
